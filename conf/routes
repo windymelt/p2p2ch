@@ -1,0 +1,16 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                           controllers.Application.index
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /bbsmenu.html               controllers.Application.bbsmenu
+GET     /bbstable.html              controllers.Application.bbstable
+GET     /bbs/                       controllers.Application.bbsindex
+GET     /bbs/subject.txt                controllers.Application.subject
+GET     /bbs/dat/0.dat         controllers.Application.information
+GET     /bbs/dat/:dat               controllers.Application.showThread(dat: String)
+POST    /test/bbs.cgi               controllers.Application.writeThread
