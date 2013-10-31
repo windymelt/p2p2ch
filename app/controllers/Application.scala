@@ -52,42 +52,7 @@ object Application extends Controller {
   }
 
   def subject = Action {
-
-    import scala.concurrent.ExecutionContext.Implicits.global
-    import play.api.libs.concurrent.Akka
-
-    play.Logger.debug("generating subject.txt...")
-    //    println("loading subject.txt ...")
-    val threads = DB.withConnection {
-      implicit c =>
-        SQL("SELECT THREAD FROM THREAD_CACHE")().map {
-          case Row(thread: Array[Byte]) => thread
-        }.toList
-    }
-    Async {
-      val threadvalsF = Akka.future {
-        Await.result(Future.sequence(threads.map {
-          key => chord2ch.get(key.toSeq)
-        }), 50 second)
-      }
-      threadvalsF.map {
-        threadvals =>
-          val threadclasses = threadvals.map {
-            v: Option[Stream[Byte]] =>
-              v map {
-                bs: Stream[Byte] =>
-                  val df = java.text.DateFormat.getDateTimeInstance
-                  val strlis = new String(bs.toArray) split ("<>")
-                  Thread(strlis(0), strlis(1).toLong, strlis(2), strlis(3), strlis(4))
-              }
-          }
-          val body = views.html.subject(threadclasses.toList.filterNot(_.isEmpty).map {
-            _.get
-          }).body
-          play.Logger.debug(s"subject.txt has been generated.(${threads.size})")
-          Ok(("0.dat<>P2P2chの情報 (1)\n12345678.dat<>test (1)\n" + body).getBytes("shift_jis")).as("text/plain")
-      }
-    }
+    Ok(Subject.generateSubject(chord2ch).getBytes("shift_jis")).as("text/plain")
   }
 
   def information = Action {
