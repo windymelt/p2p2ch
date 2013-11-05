@@ -35,7 +35,7 @@ object Subject {
 
     val future_list_opt_mapper: (Stream[Byte] => Thread) => Future[List[Option[Stream[Byte]]]] => List[Thread] =
       f => flo =>
-        Await.result(flo map (lis => lis.map(opt => opt ∘ f).filterNot(_.isEmpty).sequence[Option[List[Thread]], Thread].copoint), 100 seconds)
+        Await.result(flo map (lis => lis.map(opt => opt map f).filterNot(_.isEmpty).map(_.get)), 100 seconds)
 
     val genBody: (List[Thread]) => String = t => views.html.subject(t).body
 

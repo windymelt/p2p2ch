@@ -11,26 +11,22 @@ import play.api.db._
 import play.api.Play.current
 import anorm._
 import momijikawa.p2pscalaproto._
-import akka.actor.{ActorContext, ActorRef}
 import java.security.MessageDigest
 
 object Application extends Controller {
   type NewThreadResult = (Symbol, Array[Byte], Long)
   type NewResponseResult = (Symbol, Array[Byte], Array[Byte], Long)
 
-  import scala.concurrent.Future
   import scala.concurrent.Await
   import scala.concurrent.duration._
+  import controllers.Utility._
 
   implicit val myCustomCharset = Codec.javaSupported("Shift_JIS")
   val chord2ch = new Chord2ch
   chord2ch.init(TnodeID.newNodeId)
 
-  val Otimestamp2str: Option[Long] => String =
-    (Otime: Option[Long]) => Otime.flatMap(t => Some(new java.util.Date(t * 1000).toString)).getOrElse("???");
-
   //println("controller!!!!!!!!!!!!!!!!!!!!!")
-  def stopping = {
+  def stopping() = {
     chord2ch.close()
   }
 
@@ -56,87 +52,20 @@ object Application extends Controller {
   }
 
   def information = Action {
-    Logger.info("information has selected.")
-    val str = "</b>INFO<b><><>INFORMATION<>このページにコマンドを書き込むことで各種の設定が可能です。\"help\"でコマンド一覧が表示されます。<>P2P2chの情報"
-    val log = DB.withConnection {
-      implicit c =>
-        SQL("SELECT MESSAGE, MODIFIED FROM SETTING_LOG ORDER BY ID")().map {
-          row => (row[String]("MESSAGE"), row[Option[Long]]("MODIFIED"))
-        }.toList
-    }.map {
-      (t: (String, Option[Long])) => s"</b>INFO<b><>${Otimestamp2str(t._2)}<>INFORMATION<>${t._1}<>"
-    }.mkString("\n")
-    val result = log match {
-      case "" => str
-      case s => str + "\n" + log
-    }
-    val convertedByteArray = result.getBytes("shift_jis")
-    Ok(convertedByteArray).as("text/plain")
+    Ok(Information.getInformation.getBytes("shift_jis")).as("text/plain")
   }
 
   def config_information(from: String, mail: String, message: String) = {
-    val d = System.currentTimeMillis() / 1000
-    val result = main_configuration(message)
-    DB.withConnection {
-      implicit c =>
-        SQL("INSERT INTO SETTING_LOG (MESSAGE, MODIFIED) VALUES ({message}, {now})").on("message" -> result, "now" -> d).executeUpdate
-    }
+    Information.configurate(message)
     Ok(views.html.successfullyWritten()).as(HTML)
   }
 
-  def main_configuration(message: String): String = {
-    message.nonEmpty match {
-      case true =>
-        message.split('\n').toList match {
-          case "help" :: Nil =>
-            """
-              |join -- ノードと接続する
-              |Example:
-              |join
-              |nodeID
-              |references
-              |
-              |reference -- ノードの接続キーを表示する
-              |
-              |upload (path) -- ファイルをアップロードする
-              |
-              |help -- このコマンドを表示する
-            """.stripMargin.replace("\n", "<br>")
-          case "reference" :: Nil => chord2ch.getReference.getOrElse("N/A") replace("\n", "<br>")
-          case "join" :: nodeid :: reference :: Nil =>
-            chord2ch.join(nodeid + "\n" + reference); "接続を試行します"
-          case "status" :: Nil =>
-            val cst: ChordState = chord2ch.getStatus
-            s"""
-              |Self: ${cst.selfID.map {
-              _.getNodeID
-            }.getOrElse("N/A")}
-              |Succ:
-              |${cst.succList.nodes.list.mkString("\n")}
-              |
-              |Finger:
-              |${cst.fingerList.nodes.list.mkString("\n")}
-              |
-              |Pred: ${cst.pred.map {
-              _.getNodeID
-            }.getOrElse("N/A")}
-              |Data: ${cst.dataholder.size}""".stripMargin.replace("\n", "<br>")
-          //.toString.replace("\n", "<br>")
-          case upload :: Nil => upload.split(" ").toList match {
-            case "upload" :: path :: Nil => "まだ実装されてない"
-            case _ => "そんなコマンド知らん"
-          }
-          case _ => "そんなコマンド知らん"
-        }
-      case false => "空白は困ります"
-    }
-  }
-
   def showThread(dat: String) = Action {
+    //datStrをLongに変換しキャッシュdbから呼び、複数候補が返るので0番目を選択、Optionをcopure。
+    //さらに対応するresponseをldbから呼ぶ（ここは結合でまとめておく）。
     import scala.util.control.Exception._
     import org.apache.commons.codec.binary.Base64
     Logger.info(s"loading thread: $dat")
-    //Ok(dat).as(HTML)
     val datNo = dat.substring(0, dat.lastIndexOf(".")).toLong
     val threadv = DB.withConnection {
       implicit c =>
@@ -305,7 +234,6 @@ object Application extends Controller {
        |Digest(SHA-1): $digestStr
        |Name: ${request.subject}
        |Mail: ${request.mail}
-       |Body: ${request.MESSAGE}
 """.stripMargin)
     Logger.debug("registering thread data into Chord DHT...")
     val key: Option[Seq[Byte]] = Await.result(chord2ch.put(new String(Base64.encodeBase64(digest)), data.toStream).mapTo[Option[Seq[Byte]]], 30 second)
@@ -353,181 +281,42 @@ object Application extends Controller {
   }
 
   def updateCache(nrr: List[NewResponseResult], ntr: List[NewThreadResult]) = {
+    import scala.util.control.Exception.ignoring
     Logger.debug(s"updating thread/response local cache: thread(${ntr.size}), response(${nrr.size})")
 
-    /*ignoring(classOf[Throwable])*/
-    {
+
+    nrr foreach {
+      one =>
       // ignore unique fault
-      DB.withConnection {
-        implicit c =>
-          nrr foreach {
-            one =>
+        ignoring(classOf[Throwable]) {
+          DB.withConnection {
+            implicit c =>
               SQL("INSERT INTO RESPONSE_CACHE(RESPONSE, THREAD, MODIFIED) VALUES ({response}, {thread}, {modified})").on(
                 "response" -> one._2, // case classにするとなぜか使えないという苦肉
                 "thread" -> one._3,
                 "modified" -> one._4).executeInsert()
           }
-          ntr foreach {
-            one =>
-              SQL("INSERT INTO THREAD_CACHE(THREAD, MODIFIED) VALUES ({address}, {modified})").on(
-                "address" -> one._2,
-                "modified" -> one._3).executeInsert()
-          }
-      }
+        }
+        ntr foreach {
+          one =>
+            ignoring(classOf[Throwable]) {
+              DB.withConnection {
+                implicit c =>
+                  SQL("INSERT INTO THREAD_CACHE(THREAD, MODIFIED) VALUES ({address}, {modified})").on(
+                    "address" -> one._2,
+                    "modified" -> one._3).executeInsert()
+              }
+            }
+        }
     }
     Logger.debug("cache has updated successfully.")
   }
 
 }
 
-class ChordCore2ch extends ChordCore {
-  type NewThreadResult = (Symbol, Array[Byte], Long)
-  type NewResponseResult = (Symbol, Array[Byte], Array[Byte], Long)
-
-  var lastload: Long = 0
-  val fetcher = context.actorOf(akka.actor.Props[DataFetchingBeacon], "FetchingBeacon")
-
-  override def receiveExtension(x: Any, sender: ActorRef)(implicit context: ActorContext) = x match {
-    case ('NewResSince, time: Long) => sender ! Application.searchResSince(time)
-    case ('NewThreadSince, time: Long) => sender ! Application.searchThreadSince(time)
-    case PullNew => pullNewData
-  }
-
-  override def init(id: nodeID) = {
-    import context.dispatcher
-    import scala.concurrent.duration._
-    super.init(id)
-
-    context.system.scheduler.schedule(30 seconds, 1 minutes, self, PullNew)
-    fetcher !('start, self) // start beacon
-  }
-
-  override def postStop = {
-    fetcher ! 'stop
-  }
-
-  def pullNewData = {
-    import scala.concurrent.ExecutionContext.Implicits.global
-    import akka.pattern._
-    import concurrent.duration._
-    // ランダムなノードを選択し、newResSince/newThreadSinceをlastmodifiedに基づき発行。
-    // データが返るのでそれをDBに反映する
-    implicit val timeout: akka.util.Timeout = 30 second
-    val randomly = new util.Random()
-    val randomOne = randomly.shuffle(stateAgt().succList.nodes.list ++ stateAgt().fingerList.nodes.list).head
-    val thatActor = randomOne.actorref
-    val newResRslt = (a: ActorRef) => (sinceWhen: Long) => (a ?('NewResSince, sinceWhen)).mapTo[List[NewResponseResult]]
-    val newThreadRslt = (a: ActorRef) => (sinceWhen: Long) => (a ?('NewThreadSince, sinceWhen)).mapTo[List[NewThreadResult]]
-    val composedFuture = for {
-      snts <- newThreadRslt(thatActor)(lastload)
-      snrs <- newResRslt(thatActor)(lastload)
-    } yield (snrs, snts)
-    composedFuture.onSuccess {
-      case (snrs, snts) =>
-        Application.updateCache(snrs, snts)
-        lastload = (System.currentTimeMillis() / 1000) - 3600000 // a hour ago
-    }
-  }
-}
-
-class Chord2ch extends Chord {
-
-  import akka.actor._
-
-  //val config = ConfigFactory.load()
-  //val customConf = config.getConfig("p2pakka").withFallback({println("fallbacking"); config})
-  /*val customConf = ConfigFactory.parseString(
-    """
-      loglevel = "DEBUG"
-          actor {
-              provider = "akka.remote.RemoteActorRefProvider"
-          }
-          remote {
-              log-received-messages = on
-              log-sent-messages = on
-              transport = "akka.remote.netty.NettyRemoteTransport"
-              netty {
-                  hostname = "127.0.0.1"
-                  port = 0
-                  reuse-address = off-for-windows
-                  }
-              }
-    """)*/
-  //override val system = ActorSystem("P2P2CH", ConfigFactory.load(customConf))
-  override val chord = system.actorOf(Props[ChordCore2ch], "ChordCore2ch")
-}
-
-
 object Global extends GlobalSettings {
   override def onStop(app: Application) {
-    Application.stopping
+    Logger.debug("shutting down application..")
+    Application.stopping()
   }
 }
-
-object Utility {
-  def htmlEscape(s: String): String = {
-    val s1: String = s.replaceAll("&", "&amp;");
-    val s2: String = s1.replaceAll("<", "&lt;");
-    val s3: String = s2.replaceAll(">", "&gt;");
-    val s4: String = s3.replaceAll('"'.toString, "&quot;");
-    s4.replaceAll("'", "&#039;")
-  }
-
-  def nanasify(name: String): String = name match {
-    case "" => "P2Pの名無しさん"
-    case s => s
-  }
-}
-
-class DataFetchingBeacon extends akka.actor.Actor {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
-  import scalaz._
-  import Scalaz._
-  import akka.actor._
-
-  var cancellable: Option[Cancellable] = None
-
-  def receive = {
-    case ('start, a: ActorRef) => startTimer(a)
-    case 'stop => stopTimer
-    case unknown =>
-  }
-
-  def startTimer(a: ActorRef) = {
-    import scala.concurrent.duration._
-    cancellable = context.system.scheduler.schedule(30 second, 15 second, a, PullNew).some
-  }
-
-  def stopTimer = {
-    cancellable >>= (c => c.isCancelled match {
-      case false => c.cancel().some
-      case otherwise => None // do nothing
-    })
-    cancellable = None
-  }
-}
-
-case object PullNew
-
-case class Thread(title: String, since: Long, from: String, mail: String, body: String) {
-  override def toString = {
-    import Utility._
-    val escapedBody: String = htmlEscape(body)
-    htmlEscape(title) + "<>" + since + "<>" + htmlEscape(nanasify(from)) + "<>" + htmlEscape(mail) + "<>" + escapedBody.replaceAll("\n", " <br>")
-  }
-}
-
-case class Response(thread: Array[Byte], name: String, mail: String, body: String, time: Long) {
-
-  import org.apache.commons.codec.binary.Base64
-
-  override def toString = {
-    import Utility._
-    val escapedBody: String = htmlEscape(body)
-    new String(Base64.encodeBase64(thread)) + "<>" + htmlEscape(nanasify(name)) + "<>" + htmlEscape(mail) + "<>" + escapedBody.replaceAll("\n", " <br>") + "<>" + time
-  }
-}
-
-//case class newThreadResult(address: Array[Byte], epoch: Long)
-//case class newResponseResult(address: Array[Byte], threadAddress: Array[Byte], epoch: Long)

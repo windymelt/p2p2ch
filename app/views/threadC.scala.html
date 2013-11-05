@@ -1,0 +1,3 @@
+@(thr: Thread, res: List[controllers.Response])@thr.from<>@thr.mail<>@{Utility.Otimestamp2str(Some(thr.since))}<>@Html(thr.body)<>@thr.title
+@for(pon <- res){@pon.name<>@pon.mail<>@{Utility.Otimestamp2str(Some(pon.time))}<>@Html(pon.body)<>
+}
