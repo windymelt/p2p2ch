@@ -122,6 +122,8 @@ object Application extends Controller {
 
   def writeThread = Action {
     implicit request =>
+      Logger.info(s"request encoding is: ${request.charset}")
+
       val subjectForm = Form("subject" -> text)
       subjectForm.bindFromRequest().value match {
         case Some(_) =>
@@ -315,7 +317,11 @@ object Application extends Controller {
 }
 
 object Global extends GlobalSettings {
-  override def onStop(app: Application) {
+  override def onStart(app: Application) = {
+    Logger.debug("application started")
+  }
+
+  override def onStop(app: Application) = {
     Logger.debug("shutting down application..")
     Application.stopping()
   }
