@@ -9,7 +9,7 @@ object ApplicationBuild extends Build {
 
   val appDependencies = Seq(
     // Add your project dependencies here,
-    "momijikawa" %% "p2pscalaproto" % "0.2.2",
+    "momijikawa" %% "p2pscalaproto" % "0.2.4",
     jdbc,
     anorm
   )
