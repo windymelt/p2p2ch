@@ -9,7 +9,13 @@ object ApplicationBuild extends Build {
 
   val appDependencies = Seq(
     // Add your project dependencies here,
-    "momijikawa" %% "p2pscalaproto" % "0.2.4",
+    //    "momijikawa" %% "p2pscalaproto" % "0.2.4",
+    "commons-codec" % "commons-codec" % "1.3",
+    "org.scalaz" %% "scalaz-core" % "7.0.0",
+    "org.scalaz" %% "scalaz-effect" % "7.0.0",
+    "org.scalaz" %% "scalaz-typelevel" % "7.0.0",
+    "org.scalaz" %% "scalaz-scalacheck-binding" % "7.0.0" % "test",
+    "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
     jdbc,
     anorm
   )
