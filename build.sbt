@@ -17,7 +17,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.2.3",
   "com.typesafe.akka" %% "akka-remote" % "2.2.3",
   "com.typesafe.akka" %% "akka-agent" % "2.2.3",
-  "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
   jdbc,
   anorm
 )
