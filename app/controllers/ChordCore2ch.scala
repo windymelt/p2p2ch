@@ -2,6 +2,7 @@ package controllers
 
 import momijikawa.p2pscalaproto.{nodeID, ChordCore}
 import akka.actor.{ActorContext, ActorRef}
+import akka.agent.Agent
 
 class ChordCore2ch extends ChordCore {
   type NewThreadResult = (Symbol, Array[Byte], Long)
@@ -37,7 +38,7 @@ class ChordCore2ch extends ChordCore {
     // データが返るのでそれをDBに反映する
     implicit val timeout: akka.util.Timeout = 30 second
     val randomly = new util.Random()
-    val randomOne = randomly.shuffle(stateAgt().succList.nodes.list ++ stateAgt().fingerList.nodes.list).head
+    val randomOne = randomly.shuffle(this.stateAgt().succList.nodes.list ++ this.stateAgt().fingerList.nodes.list).head
     val thatActor = randomOne.actorref
     val newResRslt = (a: ActorRef) => (sinceWhen: Long) => (a ?('NewResSince, sinceWhen)).mapTo[List[NewResponseResult]]
     val newThreadRslt = (a: ActorRef) => (sinceWhen: Long) => (a ?('NewThreadSince, sinceWhen)).mapTo[List[NewThreadResult]]
