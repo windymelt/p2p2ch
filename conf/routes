@@ -14,3 +14,6 @@ GET     /bbs/subject.txt                controllers.Application.subject
 GET     /bbs/dat/0.dat         controllers.Application.information
 GET     /bbs/dat/:dat               controllers.Application.showThread(dat: String)
 POST    /test/bbs.cgi               controllers.Application.writeThread
+GET     /statusgraph/                    controllers.Application.showStatusImage
+GET     /statusgraph/refr               controllers.Application.showStatusImageWithRefresh(interval: Int = 30)
+GET     /statusgraph/refr               controllers.Application.showStatusImageWithRefresh(interval: Int)

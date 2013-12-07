@@ -60,6 +60,14 @@ object Application extends Controller {
     Ok(views.html.successfullyWritten()).as(HTML)
   }
 
+  def showStatusImage = Action {
+    Ok(StatusGraph.getStatusImage(chord2ch.getStatus)).as("image/png")
+  }
+
+  def showStatusImageWithRefresh(interval: Int = 30) = Action {
+    Ok(views.html.statusImageWithRefresh(interval)).as(HTML)
+  }
+
   def showThread(dat: String) = Action {
     //datStrをLongに変換しキャッシュdbから呼び、複数候補が返るので0番目を選択、Optionをcopure。
     //さらに対応するresponseをldbから呼ぶ（ここは結合でまとめておく）。
@@ -316,13 +324,3 @@ object Application extends Controller {
 
 }
 
-object Global extends GlobalSettings {
-  override def onStart(app: Application) = {
-    Logger.debug("application started")
-  }
-
-  override def onStop(app: Application) = {
-    Logger.debug("shutting down application..")
-    Application.stopping()
-  }
-}
