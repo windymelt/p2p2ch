@@ -11,4 +11,4 @@ p2p2ch
 
 このアプリケーションはPlay! 2.1.x以降で動作します。
 Play!をShift-JISに対応させるパッチが必要になります。
-[こちらのパッチ](https://gist.github.com/windymelt/7229756 "play2.1.0 SJISify")を各自の環境に合わせて改変し、適用してください。
+[最新のパッチ](https://gist.github.com/windymelt/7893820)を各自の環境に合わせて改変し、適用してください。
