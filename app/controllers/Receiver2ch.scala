@@ -1,10 +1,10 @@
 package controllers
 
-import momijikawa.p2pscalaproto.{nodeID, ChordCore}
+import momijikawa.p2pscalaproto.{ChordState, nodeID, MessageReceiver}
 import akka.actor.{ActorContext, ActorRef}
 import akka.agent.Agent
 
-class ChordCore2ch extends ChordCore {
+class Receiver2ch(stateAgt: Agent[ChordState]) extends MessageReceiver(stateAgt: Agent[ChordState]) {
   type NewThreadResult = (Symbol, Array[Byte], Long)
   type NewResponseResult = (Symbol, Array[Byte], Array[Byte], Long)
 
@@ -17,11 +17,9 @@ class ChordCore2ch extends ChordCore {
     case PullNew => pullNewData
   }
 
-  override def init(id: nodeID) = {
+  override def preStart = {
     import context.dispatcher
     import scala.concurrent.duration._
-    super.init(id)
-
     context.system.scheduler.schedule(30 seconds, 1 minutes, self, PullNew)
     fetcher !('start, self) // start beacon
   }
