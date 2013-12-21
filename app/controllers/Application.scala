@@ -12,6 +12,7 @@ import play.api.Play.current
 import anorm._
 import momijikawa.p2pscalaproto._
 import java.security.MessageDigest
+import Utility._BR_
 
 object Application extends Controller {
   type NewThreadResult = (Symbol, Array[Byte], Long)
@@ -39,7 +40,7 @@ object Application extends Controller {
   }
 
   def bbsmenu = Action {
-    Ok("<BR><BR><B>P2P</B><BR>\n" +
+    Ok("<BR><BR><B>P2P</B><BR>" + _BR_ +
       "<A HREF=/bbs/>P2P2ch</A><br>").as(HTML)
   }
 

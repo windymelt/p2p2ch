@@ -8,7 +8,7 @@ object Information {
   import play.api.db._
   import play.api.Play.current
   import anorm._
-  import controllers.Utility._
+  import Utility._
 
   def getInformation: String = {
     Logger.info("information has selected.")
@@ -20,10 +20,10 @@ object Information {
         }.toList
     }.map {
       (t: (String, Option[Long])) => s"</b>INFO<b><>${Otimestamp2str(t._2)}<>INFORMATION<>${t._1}<>"
-    }.mkString("\n")
+    }.mkString(_BR_)
     log match {
       case "" => str
-      case s => str + "\n" + log
+      case s => str + _BR_ + log
     }
   }
 
@@ -40,7 +40,7 @@ object Information {
     import Application.chord2ch
     message.nonEmpty match {
       case true =>
-        message.split('\n').toList match {
+        message.split(_BR_).toList match {
           case "help" :: Nil =>
             """
               |join -- ノードと接続する
@@ -54,10 +54,10 @@ object Information {
               |upload (path) -- ファイルをアップロードする
               |
               |help -- このコマンドを表示する
-            """.stripMargin.replace("\n", "<br>")
-          case "reference" :: Nil => chord2ch.getReference.getOrElse("N/A") replace("\n", "<br>")
+            """.stripMargin.replace(_BR_, "<br>")
+          case "reference" :: Nil => chord2ch.getReference.getOrElse("N/A") replace(_BR_, "<br>")
           case "join" :: nodeid :: reference :: Nil =>
-            chord2ch.join(nodeid + "\n" + reference); "接続を試行します"
+            chord2ch.join(nodeid + _BR_ + reference); "接続を試行します"
           case "status" :: Nil =>
             val cst: ChordState = chord2ch.getStatus
             s"""
@@ -65,15 +65,15 @@ object Information {
               _.getNodeID
             }.getOrElse("N/A")}
               |Succ:
-              |${cst.succList.nodes.list.mkString("\n")}
+              |${cst.succList.nodes.list.mkString(_BR_)}
               |
               |Finger:
-              |${cst.fingerList.nodes.list.mkString("\n")}
+              |${cst.fingerList.nodes.list.mkString(_BR_)}
               |
               |Pred: ${cst.pred.map {
               _.getNodeID
             }.getOrElse("N/A")}
-              |Data: ${cst.dataholder.size}""".stripMargin.replace("\n", "<br>")
+              |Data: ${cst.dataholder.size}""".stripMargin.replace(_BR_, "<br>")
           //.toString.replace("\n", "<br>")
           case upload :: Nil => upload.split(" ").toList match {
             case "upload" :: path :: Nil => "まだ実装されてない"

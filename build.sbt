@@ -4,7 +4,7 @@ import sbt.{Path, Resolver}
 
 name := "P2P2ch"
 
-version := "1.05"
+version := "1.06"
 
 resolvers += "Momijikawa Maven repository on GitHub" at "http://windymelt.github.io/repo/"
 
