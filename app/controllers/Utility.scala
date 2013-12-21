@@ -1,6 +1,9 @@
 package controllers
 
 object Utility {
+
+  final val _BR_ = System.getProperty("line.separator")
+
   def htmlEscape(s: String): String = {
     val s1: String = s.replaceAll("&", "&amp;");
     val s2: String = s1.replaceAll("<", "&lt;");

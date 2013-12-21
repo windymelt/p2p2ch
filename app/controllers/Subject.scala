@@ -43,6 +43,6 @@ object Subject {
 
     play.Logger.debug(s"subject.txt has been generated.(${threads.size})")
 
-    "0.dat<>P2P2chの情報 (1)\n" + body
+    "0.dat<>P2P2chの情報 (1)" + _BR_ + body
   }
 }
