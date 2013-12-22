@@ -42,38 +42,43 @@ object Information {
       case true =>
         message.split(_BR_).toList match {
           case "help" :: Nil =>
-            """
-              |join -- ノードと接続する
-              |Example:
-              |join
-              |nodeID
-              |references
-              |
-              |reference -- ノードの接続キーを表示する
-              |
-              |upload (path) -- ファイルをアップロードする
-              |
-              |help -- このコマンドを表示する
-            """.stripMargin.replace(_BR_, "<br>")
-          case "reference" :: Nil => chord2ch.getReference.getOrElse("N/A") replace(_BR_, "<br>")
-          case "join" :: nodeid :: reference :: Nil =>
-            chord2ch.join(nodeid + _BR_ + reference); "接続を試行します"
+            Seq(
+              "join -- ノードと接続する",
+              "Example:",
+              "join",
+              "nodeID",
+              "references",
+              "",
+              "reference -- ノードの接続キーを表示する",
+              "",
+              "upload (path) -- ファイルをアップロードする",
+              "",
+              "help -- このコマンドを表示する"
+            ).mkString("<br>")
+          case "reference" :: Nil => chord2ch.getReference.getOrElse("N/A")
+          case "join" :: reference :: Nil =>
+            chord2ch.join(reference); "接続を試行します"
           case "status" :: Nil =>
             val cst: ChordState = chord2ch.getStatus
-            s"""
-              |Self: ${cst.selfID.map {
-              _.getNodeID
-            }.getOrElse("N/A")}
-              |Succ:
-              |${cst.succList.nodes.list.mkString(_BR_)}
-              |
-              |Finger:
-              |${cst.fingerList.nodes.list.mkString(_BR_)}
-              |
-              |Pred: ${cst.pred.map {
-              _.getNodeID
-            }.getOrElse("N/A")}
-              |Data: ${cst.dataholder.size}""".stripMargin.replace(_BR_, "<br>")
+            Seq(
+              s"Self: ${
+                cst.selfID.map {
+                  _.getNodeID
+                }.getOrElse("N/A")
+              }",
+              "Succ:",
+              s"${cst.succList.nodes.list.mkString("<br>")}",
+              "",
+              "Finger:",
+              s"${cst.fingerList.nodes.list.mkString("<br>")}",
+              "",
+              s"Pred: ${
+                cst.pred.map {
+                  _.getNodeID
+                }.getOrElse("N/A")
+              }",
+              s"Data: ${cst.dataholder.size}"
+            ).mkString("<br>")
           //.toString.replace("\n", "<br>")
           case upload :: Nil => upload.split(" ").toList match {
             case "upload" :: path :: Nil => "まだ実装されてない"
