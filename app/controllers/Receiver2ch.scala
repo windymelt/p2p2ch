@@ -15,6 +15,7 @@ class Receiver2ch(stateAgt: Agent[ChordState]) extends MessageReceiver(stateAgt:
     case ('NewResSince, time: Long) => sender ! Application.searchResSince(time)
     case ('NewThreadSince, time: Long) => sender ! Application.searchThreadSince(time)
     case PullNew => pullNewData
+    case m => log.warning(s"unknown message: $m")
   }
 
   override def preStart = {
