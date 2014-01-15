@@ -103,18 +103,18 @@ object Application extends Controller {
               Await.result(chord2ch.get(response.toSeq), 10 second)
             }
           case otherwise => None
-        }.filterNot {
-          _.isEmpty
-        }.flatten.map {
+          /*}.filterNot {
+            _.isEmpty*/
+        }.flatten.collect {
           case Some(v: Stream[Byte]) =>
             val splited = new String(v.toArray).split("<>")
-            Response(Base64.decodeBase64(splited(0).getBytes), splited(1), splited(2), splited(3), splited(4).toLong)
+            Response.toLocalized(Response(Base64.decodeBase64(splited(0).getBytes), splited(1), splited(2), splited(3), splited(4).toLong))
         }
         Ok(
           views.html.thread(List((threadC.from, threadC.mail, Otimestamp2str(Some(threadC.since)), threadC.body, threadC.title)) ++
             responses.map {
               ar => (ar.name, ar.mail, Otimestamp2str(Some(ar.time)), ar.body, "")
-            }.toList).body.getBytes("shift_jis")).as("text/plain")
+            }.toList).body.getBytes("shift_jis")).as("text/plain").withHeaders("Cache-Conrol" -> "no-cache")
 
       case None => Ok("failed to load thread")
     }
@@ -179,14 +179,14 @@ object Application extends Controller {
           case _ => None
         }
     }
-    keys(0) match {
+    keys.headOption.getOrElse(None) match {
       case None =>
         Logger.error("no thread key in local database!"); Ok("dokogayanen")
       case Some(key) =>
         import org.apache.commons.codec.binary.Base64
         Logger.trace("thread key found.")
         val d = System.currentTimeMillis() / 1000
-        val data = Response(key, params.FROM, params.mail, params.MESSAGE, d).toString.getBytes(/*"shift_jis"*/)
+        val data = Response.toPermanent(Response(key, params.FROM, params.mail, params.MESSAGE, d)).toString.getBytes(/*"shift_jis"*/)
         val digestFactory = MessageDigest.getInstance("SHA-1")
         val digest = digestFactory.digest(data)
 
@@ -232,7 +232,7 @@ object Application extends Controller {
     import org.apache.commons.codec.binary.Base64
     Logger.info("building thread: " + request.subject)
     val d = System.currentTimeMillis() / 1000
-    val data = Thread(request.subject, d, request.FROM, request.mail, request.MESSAGE).toString.getBytes(/*"shift_jis"*/)
+    val data = Thread(request.subject.replace(_BR_, ""), d, request.FROM.replace(_BR_, ""), request.mail.replace(_BR_, ""), request.MESSAGE).toString.getBytes(/*"shift_jis"*/)
     val digestFactory = MessageDigest.getInstance("SHA-1")
     val digest = digestFactory.digest(data)
 
@@ -243,7 +243,7 @@ object Application extends Controller {
        |Title: ${request.subject}
        |Epoch: $d
        |Digest(SHA-1): $digestStr
-       |Name: ${request.subject}
+       |Name: ${request.FROM}
        |Mail: ${request.mail}
 """.stripMargin)
     Logger.debug("registering thread data into Chord DHT...")

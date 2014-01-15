@@ -11,6 +11,7 @@ object StatusGraph {
   import java.awt.Graphics2D
   import java.awt.image.BufferedImage
   import momijikawa.p2pscalaproto.ChordState
+  import java.awt.Font
 
   val HEIGHT: Int = 512
   val WIDTH: Int = 512
@@ -20,6 +21,7 @@ object StatusGraph {
     val gp = bi.createGraphics()
     gp.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
       RenderingHints.VALUE_ANTIALIAS_ON);
+    gp.setFont(new Font("Courier", Font.BOLD, 12))
 
     action(gp)
 
@@ -38,12 +40,22 @@ object StatusGraph {
     gp.drawOval(WIDTH * (1.0 - ratio) * 0.5 toInt, HEIGHT * (1.0 - ratio) * 0.5 toInt, WIDTH * ratio toInt, HEIGHT * ratio toInt)
   }
 
-  def drawCircleOnMap(mapRatio: Double, rad: Double, r: Double, color: Color, fill: Boolean)(implicit gp: Graphics2D) = {
+  def drawCircleOnMap(mapRatio: Double, rad: Double, r: Double, color: Color, fill: Boolean, str: Option[(String, Color)])(implicit gp: Graphics2D) = {
     gp.setColor(color)
+    val xDclt = WIDTH / 2 + (WIDTH * Math.cos(rad) * (mapRatio * 0.5) - r * 0.5) toInt
+    val yDclt = HEIGHT / 2 + (HEIGHT * Math.sin(rad) * (mapRatio * 0.5) - r * 0.5) toInt
+
     if (fill) {
       gp.fillOval(WIDTH / 2 + (WIDTH * Math.cos(rad) * (mapRatio * 0.5) - r * 0.5) toInt, HEIGHT / 2 + (HEIGHT * Math.sin(rad) * (mapRatio * 0.5) - r * 0.5) toInt, r toInt, r toInt)
     } else {
       gp.drawOval(WIDTH / 2 + (WIDTH * Math.cos(rad) * (mapRatio * 0.5) - r * 0.5) toInt, HEIGHT / 2 + (HEIGHT * Math.sin(rad) * (mapRatio * 0.5) - r * 0.5) toInt, r toInt, r toInt)
+    }
+    str match {
+      case Some((s, c)) =>
+        gp.setColor(c)
+        gp.drawString(s, xDclt, yDclt)
+      case None =>
+      // do nothing
     }
   }
 
@@ -60,27 +72,27 @@ object StatusGraph {
   def getStatusImage(st: ChordState): Array[Byte] = {
     val act = (gp: Graphics2D) => {
       gp.setStroke(new BasicStroke(1f))
-      drawMap(0.8, Color.GRAY)(gp)
-      drawMap(0.6, Color.DARK_GRAY)(gp)
+      drawMap(0.8, Color.GREEN)(gp)
+      drawMap(0.6, Color.GREEN)(gp)
 
       st.succList.nodes.list.foreach {
         ida =>
           drawLineOnMap(0.8, nodeID2rad(ida), nodeID2rad(st.selfID.get), Color.green)(gp)
-          drawCircleOnMap(0.8, nodeID2rad(ida), (WIDTH + HEIGHT) / 2 * 0.01, Color.GREEN, false)(gp)
+          drawCircleOnMap(0.8, nodeID2rad(ida), (WIDTH + HEIGHT) / 2 * 0.01, Color.GREEN, false, None)(gp)
       }
 
       st.fingerList.nodes.list.foreach {
         ida =>
           drawLineOnMap(0.6, nodeID2rad(ida), nodeID2rad(st.selfID.get), Color.yellow)(gp)
-          drawCircleOnMap(0.6, nodeID2rad(ida), (WIDTH + HEIGHT) / 2 * 0.01, Color.YELLOW, false)(gp)
+          drawCircleOnMap(0.6, nodeID2rad(ida), (WIDTH + HEIGHT) / 2 * 0.01, Color.YELLOW, false, None)(gp)
       }
 
       st.pred.foreach {
         prd =>
           drawLineOnMap(0.8, nodeID2rad(prd), nodeID2rad(st.selfID.get), Color.magenta)(gp)
-          drawCircleOnMap(0.8, nodeID2rad(prd), (WIDTH + HEIGHT) / 2 * 0.01, Color.MAGENTA, true)(gp)
+          drawCircleOnMap(0.8, nodeID2rad(prd), (WIDTH + HEIGHT) / 2 * 0.01, Color.MAGENTA, true, None)(gp)
       }
-      drawCircleOnMap(0.8, nodeID2rad(st.selfID.get), (WIDTH + HEIGHT) / 2 * 0.02, Color.RED, true)(gp)
+      drawCircleOnMap(0.8, nodeID2rad(st.selfID.get), (WIDTH + HEIGHT) / 2 * 0.02, Color.RED, true, Some(("SELF", Color.YELLOW)))(gp)
     }
     draw(act)
   }

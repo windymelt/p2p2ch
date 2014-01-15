@@ -4,7 +4,7 @@ import sbt.{Path, Resolver}
 
 name := "P2P2ch"
 
-version := "1.07"
+version := "1.08"
 
 resolvers += "Momijikawa Maven repository on GitHub" at "http://windymelt.github.io/repo/"
 
@@ -13,7 +13,7 @@ resolvers += Resolver.file(
 )(Resolver.ivyStylePatterns)
 
 libraryDependencies ++= Seq(
-  "momijikawa" %% "p2pscalaproto" % "0.2.10",
+  "momijikawa" %% "p2pscalaproto" % "0.2.13",
   "com.typesafe.akka" %% "akka-actor" % "2.2.3",
   "com.typesafe.akka" %% "akka-remote" % "2.2.3",
   "com.typesafe.akka" %% "akka-agent" % "2.2.3",
