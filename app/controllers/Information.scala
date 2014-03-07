@@ -77,7 +77,8 @@ object Information {
                   _.getNodeID
                 }.getOrElse("N/A")
               }",
-              s"Data: ${cst.dataholder.size}"
+              s"Data: ${cst.dataholder.size}",
+              s"Stabilizer: ${cst.stabilizer.status}"
             ).mkString("<br>")
           //.toString.replace("\n", "<br>")
           case upload :: Nil => upload.split(" ").toList match {

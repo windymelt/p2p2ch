@@ -13,6 +13,9 @@ import anorm._
 import momijikawa.p2pscalaproto._
 import java.security.MessageDigest
 import Utility._BR_
+import play.api.libs.iteratee.Enumerator
+import play.api.libs.concurrent.Promise
+import play.api.libs.Comet
 
 object Application extends Controller {
   type NewThreadResult = (Symbol, Array[Byte], Long)
@@ -62,7 +65,7 @@ object Application extends Controller {
   }
 
   def showStatusImage = Action {
-    Ok(StatusGraph.getStatusImage(chord2ch.getStatus)).as("image/png")
+    Ok(StatusGraph.getStatusImage(chord2ch.getStatus)).as("image/png").withHeaders("Cache-Conrol" -> "no-cache")
   }
 
   def showStatusImageWithRefresh(interval: Int = 30) = Action {
@@ -323,5 +326,21 @@ object Application extends Controller {
     Logger.debug("cache has updated successfully.")
   }
 
+  def statusGraphRealtime = Action {
+    Ok(views.html.statusImageRealtime()).as(HTML).withHeaders("Cache-Conrol" -> "no-cache")
+  }
+
+  def statusGraphComet = Action {
+    request =>
+      val host = request.headers("Host")
+      Ok.chunked(notifier &> Comet(callback = "parent.changed"))
+  }
+
+  lazy val notifier: Enumerator[String] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    Enumerator.generateM {
+      Promise.timeout(Some(chord2ch.stateAgt().toString), 100 milliseconds)
+    }
+  }
 }
 
