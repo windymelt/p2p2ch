@@ -26,6 +26,8 @@ object Subject {
         }.toList
     }
 
+    play.Logger.debug(s"Thread addresses in DB: ${threads.size}")
+
     val threadvalsF: (List[Array[Byte]]) => Future[List[Option[Stream[Byte]]]] = thr => Akka.future {
       Await.result(Future.sequence(thr.map {
         key => chord2ch.get(key.toSeq)

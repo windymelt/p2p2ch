@@ -28,11 +28,15 @@ object Information {
   }
 
   def configurate(message: String) = {
-    val d = System.currentTimeMillis() / 1000
     val result = main_configuration(message)
+    log(result)
+  }
+
+  def log(message: String) = {
+    val timestamp = System.currentTimeMillis() / 1000
     DB.withConnection {
       implicit c =>
-        SQL("INSERT INTO SETTING_LOG (MESSAGE, MODIFIED) VALUES ({message}, {now})").on("message" -> result, "now" -> d).executeUpdate
+        SQL("INSERT INTO SETTING_LOG (MESSAGE, MODIFIED) VALUES ({message}, {now})").on("message" -> message, "now" -> timestamp).executeUpdate
     }
   }
 
