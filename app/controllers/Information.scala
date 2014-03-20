@@ -122,7 +122,7 @@ object Status {
     Seq(
       s"Self: ${
         cst.selfID.map {
-          _.getNodeID
+          _.asNodeID
         }.getOrElse("N/A")
       }",
       "Succ:",
@@ -133,7 +133,7 @@ object Status {
       "",
       s"Pred: ${
         cst.pred.map {
-          _.getNodeID
+          _.asNodeID
         }.getOrElse("N/A")
       }",
       s"Data: ${cst.dataholder.size}",
