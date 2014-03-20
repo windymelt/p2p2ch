@@ -1,6 +1,7 @@
 package controllers
 
 import momijikawa.p2pscalaproto.ChordState
+import Application.chord2ch
 
 object Information {
 
@@ -41,57 +42,115 @@ object Information {
   }
 
   private def main_configuration(message: String): String = {
-    import Application.chord2ch
     message.nonEmpty match {
       case true =>
         message.split(_BR_).toList match {
-          case "help" :: Nil =>
-            Seq(
-              "join -- ノードと接続する",
-              "Example:",
-              "join",
-              "nodeID",
-              "references",
-              "",
-              "reference -- ノードの接続キーを表示する",
-              "",
-              "upload (path) -- ファイルをアップロードする",
-              "",
-              "help -- このコマンドを表示する"
-            ).mkString("<br>")
-          case "reference" :: Nil => chord2ch.getReference.getOrElse("N/A")
-          case "join" :: reference :: Nil =>
-            chord2ch.join(reference); "接続を試行します"
-          case "status" :: Nil =>
-            val cst: ChordState = chord2ch.getStatus
-            Seq(
-              s"Self: ${
-                cst.selfID.map {
-                  _.getNodeID
-                }.getOrElse("N/A")
-              }",
-              "Succ:",
-              s"${cst.succList.nodes.list.mkString("<br>")}",
-              "",
-              "Finger:",
-              s"${cst.fingerList.nodes.list.mkString("<br>")}",
-              "",
-              s"Pred: ${
-                cst.pred.map {
-                  _.getNodeID
-                }.getOrElse("N/A")
-              }",
-              s"Data: ${cst.dataholder.size}",
-              s"Stabilizer: ${cst.stabilizer.status}"
-            ).mkString("<br>")
-          //.toString.replace("\n", "<br>")
-          case upload :: Nil => upload.split(" ").toList match {
-            case "upload" :: path :: Nil => "まだ実装されてない"
-            case _ => "そんなコマンド知らん"
-          }
+          case Help() => Help.work
+          case Reference() => Reference.work
+          case Join(reference) => Join.work(reference)
+          case Status() => Status.work
+          case Upload(path) => Upload.work(path)
           case _ => "そんなコマンド知らん"
         }
       case false => "空白は困ります"
     }
+  }
+}
+
+object Help {
+  def unapply(x: Any): Boolean = {
+    x.isInstanceOf[List[String]] && (x.asInstanceOf[List[String]] match {
+      case "help" :: Nil => true
+      case _ => false
+    })
+  }
+
+  def work: String = {
+    Seq(
+      "join -- ノードと接続する",
+      "Example:",
+      "join",
+      "nodeID",
+      "references",
+      "",
+      "reference -- ノードの接続キーを表示する",
+      "",
+      "upload (path) -- ファイルをアップロードする",
+      "",
+      "help -- このコマンドを表示する"
+    ).mkString("<br>")
+  }
+}
+
+object Reference {
+  def unapply(x: Any): Boolean = {
+    x.isInstanceOf[List[String]] && (x.asInstanceOf[List[String]] match {
+      case "reference" :: Nil => true
+      case _ => false
+    })
+  }
+
+  def work: String = {
+    chord2ch.getReference.getOrElse("N/A")
+  }
+}
+
+object Join {
+  def unapply(x: Any): Option[String] = {
+    x match {
+      case "join" :: (reference: String) :: Nil => Some(reference)
+      case _ => None
+    }
+  }
+
+  def work(reference: String): String = {
+    chord2ch.join(reference);
+    "接続を試行します"
+  }
+}
+
+object Status {
+  def unapply(x: Any): Boolean = {
+    x.isInstanceOf[List[String]] && (x.asInstanceOf[List[String]] match {
+      case "status" :: Nil => true
+      case _ => false
+    })
+  }
+
+  def work: String = {
+    val cst: ChordState = chord2ch.getStatus
+    Seq(
+      s"Self: ${
+        cst.selfID.map {
+          _.getNodeID
+        }.getOrElse("N/A")
+      }",
+      "Succ:",
+      s"${cst.succList.nodes.list.mkString("<br>")}",
+      "",
+      "Finger:",
+      s"${cst.fingerList.nodes.list.mkString("<br>")}",
+      "",
+      s"Pred: ${
+        cst.pred.map {
+          _.getNodeID
+        }.getOrElse("N/A")
+      }",
+      s"Data: ${cst.dataholder.size}",
+      s"Stabilizer: ${cst.stabilizer.status}"
+    ).mkString("<br>")
+  }
+}
+
+object Upload {
+  def unapply(x: Any): Option[String] = {
+    x match {
+      case "upload" :: (path_to_file: String) :: Nil => Some(path_to_file)
+      case _ => None
+    }
+  }
+
+  def work(path_to_file: String): String = {
+    "まだ実装されてない"
   }
 }
