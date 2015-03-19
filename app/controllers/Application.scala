@@ -43,12 +43,11 @@ object Application extends Controller {
   }
 
   def bbsmenu = Action {
-    Ok("<BR><BR><B>P2P</B><BR>" + _BR_ +
-      "<A HREF=/bbs/>P2P2ch</A><br>").as(HTML)
+    Ok(views.html.bbsmenu()).as(HTML)
   }
 
   def bbstable = Action {
-    Ok("【<B>P2P</B>】<A HREF=/bbs/>P2P2ch</A>").as(HTML)
+    Ok(views.html.bbstable()).as(HTML)
   }
 
   def subject = Action {
