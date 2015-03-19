@@ -1,7 +1,7 @@
 package controllers
 
-import momijikawa.p2pscalaproto.{ChordState, nodeID, MessageReceiver}
-import akka.actor.{ActorContext, ActorRef}
+import momijikawa.p2pscalaproto.{ ChordState, nodeID, MessageReceiver }
+import akka.actor.{ ActorContext, ActorRef }
 import akka.agent.Agent
 
 class Receiver2ch(stateAgt: Agent[ChordState]) extends MessageReceiver(stateAgt: Agent[ChordState]) {
@@ -22,7 +22,7 @@ class Receiver2ch(stateAgt: Agent[ChordState]) extends MessageReceiver(stateAgt:
     import context.dispatcher
     import scala.concurrent.duration._
     context.system.scheduler.schedule(30 seconds, 1 minutes, self, PullNew)
-    fetcher !('start, self) // start beacon
+    fetcher ! ('start, self) // start beacon
   }
 
   override def postStop = {
@@ -39,8 +39,8 @@ class Receiver2ch(stateAgt: Agent[ChordState]) extends MessageReceiver(stateAgt:
     val randomly = new util.Random()
     val randomOne = randomly.shuffle(this.stateAgt().succList.nodes.list ++ this.stateAgt().fingerList.nodes.list).head
     val thatActor = randomOne.actorref
-    val newResRslt = (a: ActorRef) => (sinceWhen: Long) => (a ?('NewResSince, sinceWhen)).mapTo[List[NewResponseResult]]
-    val newThreadRslt = (a: ActorRef) => (sinceWhen: Long) => (a ?('NewThreadSince, sinceWhen)).mapTo[List[NewThreadResult]]
+    val newResRslt = (a: ActorRef) => (sinceWhen: Long) => (a ? ('NewResSince, sinceWhen)).mapTo[List[NewResponseResult]]
+    val newThreadRslt = (a: ActorRef) => (sinceWhen: Long) => (a ? ('NewThreadSince, sinceWhen)).mapTo[List[NewThreadResult]]
     val composedFuture = for {
       snts <- newThreadRslt(thatActor)(lastload)
       snrs <- newResRslt(thatActor)(lastload)

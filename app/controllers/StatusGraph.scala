@@ -1,7 +1,6 @@
 package controllers
 
-import momijikawa.p2pscalaproto.{TnodeID, nodeID}
-
+import momijikawa.p2pscalaproto.{ TnodeID, nodeID }
 
 object StatusGraph {
 

@@ -148,7 +148,7 @@ object Application extends Controller {
             "subject" -> text)(WriteRequestT.apply)(WriteRequestT.unapply))
           val params = WriteRequestForm.bindFromRequest().get
           //val subj = request.body.asFormUrlEncoded.get.apply("subject")
-          buildThread(/*strMalSJIS2strU(*/ params /*params.subject*/) //)
+          buildThread( /*strMalSJIS2strU(*/ params /*params.subject*/ ) //)
 
         case None =>
           val WriteRequestForm = Form(mapping(
@@ -201,7 +201,7 @@ object Application extends Controller {
           Ok("このスレッドには書き込めません！(OVERRUN)")
         } else {
           val d = System.currentTimeMillis() / 1000
-          val data = Response.toPermanent(Response(key, params.FROM, params.mail, params.MESSAGE, d)).toString.getBytes(/*"shift_jis"*/)
+          val data = Response.toPermanent(Response(key, params.FROM, params.mail, params.MESSAGE, d)).toString.getBytes( /*"shift_jis"*/ )
           val digestFactory = MessageDigest.getInstance("SHA-1")
           val digest = digestFactory.digest(data)
 
@@ -246,7 +246,7 @@ object Application extends Controller {
     import org.apache.commons.codec.binary.Base64
     Logger.info("building thread: " + request.subject)
     val d = System.currentTimeMillis() / 1000
-    val data = Thread(request.subject.replace(_BR_, ""), d, request.FROM.replace(_BR_, ""), request.mail.replace(_BR_, ""), request.MESSAGE).toString.getBytes(/*"shift_jis"*/)
+    val data = Thread(request.subject.replace(_BR_, ""), d, request.FROM.replace(_BR_, ""), request.mail.replace(_BR_, ""), request.MESSAGE).toString.getBytes( /*"shift_jis"*/ )
     val digestFactory = MessageDigest.getInstance("SHA-1")
     val digest = digestFactory.digest(data)
 
@@ -309,10 +309,9 @@ object Application extends Controller {
     import scala.util.control.Exception.ignoring
     Logger.debug(s"updating thread/response local cache: thread(${ntr.size}), response(${nrr.size})")
 
-
     nrr foreach {
       one =>
-      // ignore unique fault
+        // ignore unique fault
         ignoring(classOf[Throwable]) {
           DB.withConnection {
             implicit c =>
