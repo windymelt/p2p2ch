@@ -96,7 +96,7 @@ object Application extends Controller {
     threadData match {
       case Some(threadData: Stream[Byte]) =>
         val threadDataSplited = new String(threadData.toArray[Byte]).split("<>")
-        val threadC = Thread(threadDataSplited(0), threadDataSplited(1).toLong, threadDataSplited(2), threadDataSplited(3), threadDataSplited(4))
+        val threadC = ThreadHeader(threadDataSplited(0), threadDataSplited(1).toLong, threadDataSplited(2), threadDataSplited(3), threadDataSplited(4))
         val responses = responsesKeys.map {
           case (response: Array[Byte], modified: Long) =>
             allCatch opt {
@@ -244,7 +244,7 @@ object Application extends Controller {
     import org.apache.commons.codec.binary.Base64
     Logger.info("building thread: " + request.subject)
     val d = System.currentTimeMillis() / 1000
-    val data = Thread(request.subject.replace(_BR_, ""), d, request.FROM.replace(_BR_, ""), request.mail.replace(_BR_, ""), request.MESSAGE).toString.getBytes( /*"shift_jis"*/ )
+    val data = ThreadHeader(request.subject.replace(_BR_, ""), d, request.FROM.replace(_BR_, ""), request.mail.replace(_BR_, ""), request.MESSAGE).toString.getBytes( /*"shift_jis"*/ )
     val digestFactory = MessageDigest.getInstance("SHA-1")
     val digest = digestFactory.digest(data)
 

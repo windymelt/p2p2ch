@@ -34,13 +34,13 @@ object Subject {
       }), 50 second)
     }
 
-    val tokenize: (Stream[Byte]) => Thread = thr => (new String(thr.toArray)).split("""<>""") |> ((s: Array[String]) => Thread(s(0), s(1).toLong, s(2), s(3), s(4)))
+    val tokenize: (Stream[Byte]) => ThreadHeader = thr => (new String(thr.toArray)).split("""<>""") |> ((s: Array[String]) => ThreadHeader(s(0), s(1).toLong, s(2), s(3), s(4)))
 
-    val future_list_opt_mapper: (Stream[Byte] => Thread) => Future[List[Option[Stream[Byte]]]] => List[Thread] =
+    val future_list_opt_mapper: (Stream[Byte] => ThreadHeader) => Future[List[Option[Stream[Byte]]]] => List[ThreadHeader] =
       f => flo =>
         Await.result(flo map (lis => lis.map(opt => opt map f).filterNot(_.isEmpty).map(_.get)), 100 seconds)
 
-    val genBody: (List[Thread]) => String = t => views.html.subject(t).body
+    val genBody: (List[ThreadHeader]) => String = t => views.html.subject(t).body
 
     val body: String = threads |> (threadvalsF >>> (tokenize |> future_list_opt_mapper) >>> genBody)
 
