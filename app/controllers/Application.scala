@@ -12,7 +12,6 @@ import play.api.Play.current
 import anorm._
 import momijikawa.p2pscalaproto._
 import java.security.MessageDigest
-import Utility._BR_
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.Promise
 import play.api.libs.Comet
