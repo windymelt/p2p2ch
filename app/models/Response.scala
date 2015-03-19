@@ -1,12 +1,11 @@
-package controllers
+package models
 
 case class Response(thread: Array[Byte], name: String, mail: String, body: String, time: Long) {
 
   import org.apache.commons.codec.binary.Base64
-  import Utility._BR_
 
   override def toString = {
-    import Utility._
+    import controllers.Utility._
     val escapedBody: String = htmlEscape(body)
     new String(Base64.encodeBase64(thread)) + "<>" + htmlEscape(nanasify(name)) + "<>" + htmlEscape(mail) + "<>" + escapedBody.replaceAll(_BR_, " <br>") + "<>" + time
   }
@@ -14,13 +13,13 @@ case class Response(thread: Array[Byte], name: String, mail: String, body: Strin
 
 object Response {
 
-  import scala.util.matching.Regex
-  import play.api.db._
-  import play.api.Play.current
   import anorm._
-  import scalaz._
-  import Scalaz._
   import org.apache.commons.codec.binary.Base64
+  import play.api.Play.current
+  import play.api.db._
+
+  import scala.util.matching.Regex
+  import scalaz.Scalaz._
 
   // レス番に対応する正規表現
   private def localMatcher = new Regex(""">>(\d{1,4})""", "resNumber")

@@ -1,5 +1,6 @@
 package controllers
 
+import models.{ Responses, Thread, Response, ThreadHeader }
 import controllers.Application._
 import controllers.Utility._
 import play.api.Logger
@@ -10,7 +11,7 @@ import scalaz._
 import Scalaz._
 
 class ThreadViewer {
-  def loadThread(datNumber: Long): Option[Thread] = {
+  def loadThread(datNumber: Long): Option[models.Thread] = {
     import scala.util.control.Exception._
     import org.apache.commons.codec.binary.Base64
     Logger.info(s"loading thread: $datNumber")
