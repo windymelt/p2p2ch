@@ -28,7 +28,6 @@ object Application extends Controller {
   val chord2ch = new Chord2ch
   chord2ch.init(TnodeID.newNodeId)
 
-  //println("controller!!!!!!!!!!!!!!!!!!!!!")
   def stopping() = {
     chord2ch.close()
   }
