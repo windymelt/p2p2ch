@@ -28,31 +28,31 @@ object Application extends Controller {
   val chord2ch = new Chord2ch
   chord2ch.init(TnodeID.newNodeId)
 
-  def stopping() = {
+  def shutdownHook() = {
     chord2ch.close()
   }
 
-  def index = Action {
+  def showIndex = Action {
     Ok(views.html.index("Your new application is ready."))
   }
 
-  def bbsindex = Action {
+  def showBBSIndex = Action {
     Ok(views.html.bbsindex("test")).as(HTML)
   }
 
-  def bbsmenu = Action {
+  def showBBSMenu = Action {
     Ok(views.html.bbsmenu()).as(HTML)
   }
 
-  def bbstable = Action {
+  def showBBSTable = Action {
     Ok(views.html.bbstable()).as(HTML)
   }
 
-  def subject = Action {
+  def showSubject = Action {
     Ok(Subject.generateSubject(chord2ch).getBytes("shift_jis")).as("text/plain")
   }
 
-  def information = Action {
+  def showInformation = Action {
     Ok(Information.getInformation.getBytes("shift_jis")).as("text/plain")
   }
 
@@ -334,11 +334,11 @@ object Application extends Controller {
     Logger.debug("cache has updated successfully.")
   }
 
-  def statusGraphRealtime = Action {
+  def showStatusGraphRealtime = Action {
     Ok(views.html.statusImageRealtime()).as(HTML).withHeaders("Cache-Conrol" -> "no-cache")
   }
 
-  def statusGraphComet = Action {
+  def showStatusGraphComet = Action {
     request =>
       val host = request.headers("Host")
       Ok.chunked(notifier &> Comet(callback = "parent.changed"))

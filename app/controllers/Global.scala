@@ -7,6 +7,6 @@ object Global extends GlobalSettings {
 
   override def onStop(app: Application) = {
     Logger.debug("shutting down application..")
-    controllers.Application.stopping()
+    controllers.Application.shutdownHook()
   }
 }
