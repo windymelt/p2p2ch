@@ -70,55 +70,17 @@ object Application extends Controller {
   }
 
   def showThread(dat: String) = Action {
-    //datStrをLongに変換しキャッシュdbから呼び、複数候補が返るので0番目を選択、Optionをcopure。
-    //さらに対応するresponseをldbから呼ぶ（ここは結合でまとめておく）。
-    import scala.util.control.Exception._
-    import org.apache.commons.codec.binary.Base64
-    Logger.info(s"loading thread: $dat")
-    val datNo = dat.substring(0, dat.lastIndexOf(".")).toLong
-    val threadv = DB.withConnection {
-      implicit c =>
-        SQL("SELECT THREAD FROM THREAD_CACHE WHERE MODIFIED = {modified}").on("modified" -> datNo)().map {
-          case Row(thread: Array[Byte]) => Some(thread)
-          case _ => None
-        }.filterNot(_.isEmpty).toList
-    }
-    val threadKey = threadv(0).get
-    val responsesKeys = DB.withConnection {
-      implicit c =>
-        SQL("SELECT RESPONSE, MODIFIED FROM RESPONSE_CACHE WHERE THREAD = {thread}  ORDER BY MODIFIED").on("thread" -> threadKey)().map {
-          case Row(response: Array[Byte], modified: Long) => (response, modified)
-        }.toList
-    }
-    val threadData = (allCatch opt {
-      Await.result(chord2ch.get(threadKey.toSeq), 10 second)
-    }).flatten
-    threadData match {
-      case Some(threadData: Stream[Byte]) =>
-        val threadDataSplited = new String(threadData.toArray[Byte]).split("<>")
-        val threadC = ThreadHeader(threadDataSplited(0), threadDataSplited(1).toLong, threadDataSplited(2), threadDataSplited(3), threadDataSplited(4))
-        val responses = responsesKeys.map {
-          case (response: Array[Byte], modified: Long) =>
-            allCatch opt {
-              Await.result(chord2ch.get(response.toSeq), 10 second)
-            }
-          case otherwise => None
-          /*}.filterNot {
-            _.isEmpty*/
-        }.flatten.collect {
-          case Some(v: Stream[Byte]) =>
-            val splited = new String(v.toArray).split("<>")
-            Response.toLocalized(Response(Base64.decodeBase64(splited(0).getBytes), splited(1), splited(2), splited(3), splited(4).toLong))
-        }
-        Ok(
-          views.html.thread(List((threadC.from, threadC.mail, Otimestamp2str(Some(threadC.since)), threadC.body, threadC.title)) ++
-            responses.map {
-              ar => (ar.name, ar.mail, Otimestamp2str(Some(ar.time)), ar.body, "")
-            }.toList).body.getBytes("shift_jis")).as("text/plain").withHeaders("Cache-Conrol" -> "no-cache")
+    val datNumber = dat.substring(0, dat.lastIndexOf(".")).toLong
+    val viewer = new ThreadViewer()
+    val threadOpt = viewer.loadThread(datNumber)
+    threadOpt match {
+      case Some(thread) =>
+        Ok(viewer.convertThread2HTML(thread).getBytes("shift_jis"))
+          .as("text/plain")
+          .withHeaders("Cache-Conrol" -> "no-cache")
 
       case None => Ok("failed to load thread")
     }
-
   }
 
   private def strMalSJIS2strU(str: String) = {
