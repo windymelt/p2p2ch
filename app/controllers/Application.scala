@@ -16,6 +16,8 @@ import java.security.MessageDigest
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.Promise
 import play.api.libs.Comet
+import scalaz._
+import Scalaz._
 
 object Application extends Controller {
   type NewThreadResult = (Symbol, Array[Byte], Long)
@@ -71,9 +73,14 @@ object Application extends Controller {
   }
 
   def showThread(dat: String) = Action {
-    val datNumber = dat.substring(0, dat.lastIndexOf(".")).toLong
+    val datNumberOpt = try {
+      dat.substring(0, dat.lastIndexOf(".")).toLong.some
+    } catch {
+      case e: NumberFormatException => None
+      case _: Throwable => None
+    }
     val viewer = new ThreadViewer()
-    val threadOpt = viewer.loadThread(datNumber)
+    val threadOpt = datNumberOpt >>= viewer.loadThread
     threadOpt match {
       case Some(thread) =>
         Ok(viewer.convertThread2HTML(thread).getBytes("shift_jis"))
