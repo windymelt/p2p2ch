@@ -112,7 +112,6 @@ object Application extends Controller {
             "MESSAGE" -> text,
             "subject" -> text)(WriteRequestT.apply)(WriteRequestT.unapply))
           val params = WriteRequestForm.bindFromRequest().get
-          //val subj = request.body.asFormUrlEncoded.get.apply("subject")
           val buildResult = new ThreadBuilder().buildThread(params.subject, params.FROM, params.mail, params.MESSAGE)
           buildResult match {
             case \/-(_) =>
