@@ -35,9 +35,9 @@ object Application extends Controller {
   def showBBSTable = Action { Ok(views.html.bbstable()).as(HTML) }
   def showSubject = Action { Ok(Subject.generateSubject(chord2ch).getBytes("shift_jis")).as("text/plain") }
   def showInformation = Action { Ok(Information.getInformation.getBytes("shift_jis")).as("text/plain") }
-  def showStatusImage = Action { Ok(StatusGraph.getStatusImage(chord2ch.getStatus)).as("image/png").withHeaders("Cache-Conrol" -> "no-cache") }
+  def showStatusImage = Action { Ok(StatusGraph.getStatusImage(chord2ch.getStatus)).as("image/png").withHeaders("Cache-Control" -> "no-cache") }
   def showStatusImageWithRefresh(interval: Int = 30) = Action { Ok(views.html.statusImageWithRefresh(interval)).as(HTML) }
-  def showStatusGraphRealtime = Action { Ok(views.html.statusImageRealtime()).as(HTML).withHeaders("Cache-Conrol" -> "no-cache") }
+  def showStatusGraphRealtime = Action { Ok(views.html.statusImageRealtime()).as(HTML).withHeaders("Cache-Control" -> "no-cache") }
 
   def config_information(from: String, mail: String, message: String) = {
     Information.configurate(message)
@@ -53,7 +53,7 @@ object Application extends Controller {
       case Some(thread) ⇒
         Ok(viewer.convertThread2HTML(thread).getBytes("shift_jis"))
           .as("text/plain")
-          .withHeaders("Cache-Conrol" -> "no-cache")
+          .withHeaders("Cache-Control" -> "no-cache")
       case None ⇒ Ok("failed to load thread")
     }
   }
