@@ -41,7 +41,7 @@ object Subject {
       f => flo =>
         Await.result(flo map (lis => lis.map(opt => opt map f).filterNot(_.isEmpty).map(_.get)), 100 seconds)
 
-    val genBody: (List[ThreadHeader]) => String = t => views.html.subject(t).body
+    val genBody: (List[ThreadHeader]) => String = t => views.html.threadList(t).body
 
     val body: String = threads |> (threadvalsF >>> (tokenize |> future_list_opt_mapper) >>> genBody)
 

@@ -58,7 +58,7 @@ object Application extends Controller {
 
   def config_information(from: String, mail: String, message: String) = {
     Information.configurate(message)
-    Ok(views.html.successfullyWritten()).as(HTML)
+    Ok(views.html.threadPostSuccessful()).as(HTML)
   }
 
   def showStatusImage = Action {
@@ -116,9 +116,9 @@ object Application extends Controller {
           val buildResult = new ThreadBuilder().buildThread(params.subject, params.FROM, params.mail, params.MESSAGE)
           buildResult match {
             case \/-(_) =>
-              Ok(views.html.successfullyWritten()).as(HTML)
+              Ok(views.html.threadPostSuccessful()).as(HTML)
             case -\/(error) =>
-              Ok(views.html.failedBuilding(error.message)).as(HTML)
+              Ok(views.html.threadBuildFailed(error.message)).as(HTML)
           }
 
         case None =>
@@ -137,9 +137,9 @@ object Application extends Controller {
               val writeResult = new ThreadWriter().writeThread(threadDatNumber, params.FROM, params.mail, params.MESSAGE)
               writeResult match {
                 case \/-(_) => // Success!
-                  Ok(views.html.successfullyWritten()).as(HTML)
+                  Ok(views.html.threadPostSuccessful()).as(HTML)
                 case -\/(error) =>
-                  Ok(views.html.badlyWritten(error.message)).as(HTML)
+                  Ok(views.html.threadWriteFailed(error.message)).as(HTML)
               }
           }
       }
