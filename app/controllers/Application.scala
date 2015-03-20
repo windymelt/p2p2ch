@@ -29,41 +29,19 @@ object Application extends Controller {
     chord2ch.close()
   }
 
-  def showIndex = Action {
-    Ok(views.html.index("Your new application is ready."))
-  }
-
-  def showBBSIndex = Action {
-    Ok(views.html.bbsindex("test")).as(HTML)
-  }
-
-  def showBBSMenu = Action {
-    Ok(views.html.bbsmenu()).as(HTML)
-  }
-
-  def showBBSTable = Action {
-    Ok(views.html.bbstable()).as(HTML)
-  }
-
-  def showSubject = Action {
-    Ok(Subject.generateSubject(chord2ch).getBytes("shift_jis")).as("text/plain")
-  }
-
-  def showInformation = Action {
-    Ok(Information.getInformation.getBytes("shift_jis")).as("text/plain")
-  }
+  def showIndex = Action { Ok(views.html.index("Your new application is ready.")) }
+  def showBBSIndex = Action { Ok(views.html.bbsindex("test")).as(HTML) }
+  def showBBSMenu = Action { Ok(views.html.bbsmenu()).as(HTML) }
+  def showBBSTable = Action { Ok(views.html.bbstable()).as(HTML) }
+  def showSubject = Action { Ok(Subject.generateSubject(chord2ch).getBytes("shift_jis")).as("text/plain") }
+  def showInformation = Action { Ok(Information.getInformation.getBytes("shift_jis")).as("text/plain") }
+  def showStatusImage = Action { Ok(StatusGraph.getStatusImage(chord2ch.getStatus)).as("image/png").withHeaders("Cache-Conrol" -> "no-cache") }
+  def showStatusImageWithRefresh(interval: Int = 30) = Action { Ok(views.html.statusImageWithRefresh(interval)).as(HTML) }
+  def showStatusGraphRealtime = Action { Ok(views.html.statusImageRealtime()).as(HTML).withHeaders("Cache-Conrol" -> "no-cache") }
 
   def config_information(from: String, mail: String, message: String) = {
     Information.configurate(message)
     Ok(views.html.threadPostSuccessful()).as(HTML)
-  }
-
-  def showStatusImage = Action {
-    Ok(StatusGraph.getStatusImage(chord2ch.getStatus)).as("image/png").withHeaders("Cache-Conrol" -> "no-cache")
-  }
-
-  def showStatusImageWithRefresh(interval: Int = 30) = Action {
-    Ok(views.html.statusImageWithRefresh(interval)).as(HTML)
   }
 
   def showThread(datFileName: String) = Action {
@@ -132,10 +110,6 @@ object Application extends Controller {
       }
   }
 
-  def showStatusGraphRealtime = Action {
-    Ok(views.html.statusImageRealtime()).as(HTML).withHeaders("Cache-Conrol" -> "no-cache")
-  }
-
   def showStatusGraphComet = Action {
     request ⇒
       val host = request.headers("Host")
@@ -149,4 +123,3 @@ object Application extends Controller {
     }
   }
 }
-
