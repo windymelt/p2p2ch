@@ -24,4 +24,21 @@ object SQLLocalDatabase extends LocalDatabase {
     }
     responseKeys
   }
+  def countResponsesIn(threadKey: Array[Byte]): Long = {
+    DB.withConnection {
+      implicit c =>
+        SQL("SELECT COUNT(RESPONSE) AS COUNT FROM RESPONSE_CACHE WHERE THREAD = {thread}").on("thread" -> threadKey)().map {
+          case Row(count: Long) => count
+        }.head
+    }
+  }
+  def insertResponse(threadKey: Array[Byte], responseKey: Array[Byte], time: Long): Unit = {
+    DB.withConnection {
+      implicit c =>
+        SQL("INSERT INTO RESPONSE_CACHE(THREAD, RESPONSE, MODIFIED) VALUES({thread}, {response}, {modified})").on(
+          'thread -> threadKey,
+          'response -> responseKey,
+          'modified -> time).executeInsert()
+    }
+  }
 }

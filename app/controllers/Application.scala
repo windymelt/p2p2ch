@@ -3,19 +3,19 @@
  */
 package controllers
 
-import models.{ Response, ThreadHeader }
+import models.ThreadHeader
 import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 import play.api.db._
 import play.api.Play.current
-import anorm._
-import momijikawa.p2pscalaproto._
-import java.security.MessageDigest
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.Promise
 import play.api.libs.Comet
+import anorm._
+import momijikawa.p2pscalaproto._
+import java.security.MessageDigest
 import scalaz._
 import Scalaz._
 
@@ -130,83 +130,16 @@ object Application extends Controller {
           val params = WriteRequestForm.bindFromRequest().get
           params.key match {
             case 0 => config_information(params.FROM, params.mail, params.MESSAGE)
-            case _ => writeThreadMain(params)
+            case threadDatNumber =>
+              val writeResult = new ThreadWriter().writeThread(threadDatNumber, params.FROM, params.mail, params.MESSAGE)
+              writeResult match {
+                case \/-(_) => // Success!
+                  Ok(views.html.successfullyWritten()).as(HTML)
+                case -\/(error) =>
+                  Ok(views.html.badlyWritten(error.message)).as(HTML)
+              }
           }
       }
-  }
-
-  private def writeThreadMain(params: WriteRequestR) = {
-    // すれたてるときにcurrenttimemilの衝突がおこるかも
-    // put into chord
-    //keyに対応するthreadを取得する
-    Logger.info("writing response.")
-    Logger.debug("checking whether there's thread key in local database.")
-    val keys = DB.withConnection {
-      implicit c =>
-        SQL("SELECT MODIFIED, THREAD FROM THREAD_CACHE WHERE MODIFIED={modified}").on('modified -> params.key)().map {
-          case Row(modified: Long, thread: Array[Byte]) =>
-            Some(thread)
-          case _ => None
-        }
-    }
-    keys.headOption.getOrElse(None) match {
-      case None =>
-        Logger.error("no thread key in local database!"); Ok("dokogayanen")
-      case Some(key) =>
-        import org.apache.commons.codec.binary.Base64
-        Logger.trace("thread key found.")
-
-        val responseExceedsLimit: Boolean = {
-          DB.withConnection {
-            implicit c =>
-              SQL("SELECT COUNT(RESPONSE) AS COUNT FROM RESPONSE_CACHE WHERE THREAD = {thread}").on("thread" -> key)().map {
-                case Row(count: Long) => count
-              }.head >= 999 // >>1はカウントされないため
-          }
-        }
-
-        if (responseExceedsLimit) {
-          Ok("このスレッドには書き込めません！(OVERRUN)")
-        } else {
-          val d = System.currentTimeMillis() / 1000
-          val data = Response.toPermanent(Response(key, params.FROM, params.mail, params.MESSAGE, d)).toString.getBytes( /*"shift_jis"*/ )
-          val digestFactory = MessageDigest.getInstance("SHA-1")
-          val digest = digestFactory.digest(data)
-
-          val digestStr = Base64.encodeBase64(digest)
-          Logger.debug(
-            s"""
-      |--- response information ---
-      |Thread: $key
-      |From: $params.FROM
-      |Mail: $params.mail
-      |MESSAGE: $params.MESSAGE
-      |Digest(SHA-1): $digestStr
-              """.stripMargin)
-
-          Logger.debug("registering response information into Chord DHT...")
-          val dht_keyO = Await.result(chord2ch.put(new String(Base64.encodeBase64(digest)), data.toStream), 30 second)
-          Logger.debug("registered successfully.")
-
-          dht_keyO match {
-            case Some(dht_key) =>
-              // put into h2db
-              Logger.debug("registering response information into local database...")
-              DB.withConnection {
-                implicit c =>
-                  SQL("INSERT INTO RESPONSE_CACHE(THREAD, RESPONSE, MODIFIED) VALUES({thread}, {response}, {modified})").on(
-                    'thread -> key,
-                    'response -> dht_key.toArray[Byte],
-                    'modified -> d).executeInsert()
-              }
-              Logger.info("response has written succesfully.")
-              Ok(views.html.successfullyWritten()).as(HTML)
-            case None =>
-              Logger.error("response writing failed.")
-              Ok(views.html.badlyWritten()).as(HTML)
-          }
-        }
-    }
   }
 
   private def buildThread(request: WriteRequestT) = {

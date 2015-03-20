@@ -6,7 +6,7 @@ import controllers.Utility._
 import play.api.Logger
 import scala.concurrent.duration._
 import scala.concurrent.Await
-import localdb.SQLLocalDatabase
+import localdb.LocalDatabase
 import scalaz._
 import Scalaz._
 
@@ -16,9 +16,9 @@ class ThreadViewer {
     import org.apache.commons.codec.binary.Base64
     Logger.info(s"loading thread: $datNumber")
 
-    val threadKeyOpt = SQLLocalDatabase.fetchThreadKeyFromDatNumber(datNumber)
+    val threadKeyOpt = LocalDatabase.default.fetchThreadKeyFromDatNumber(datNumber)
     if (threadKeyOpt.isEmpty) { return None }
-    val responseKeys = threadKeyOpt map SQLLocalDatabase.fetchResponseKeysFromThreadKey get
+    val responseKeys = threadKeyOpt map LocalDatabase.default.fetchResponseKeysFromThreadKey get
 
     val threadData = (allCatch opt {
       Await.result(chord2ch.get(threadKeyOpt.get.toSeq), 10 second)
