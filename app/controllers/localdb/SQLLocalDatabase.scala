@@ -41,4 +41,12 @@ object SQLLocalDatabase extends LocalDatabase {
           'modified -> time).executeInsert()
     }
   }
+  def insertThread(threadKey: Array[Byte], time: Long): Unit = {
+    DB.withConnection {
+      implicit c =>
+        SQL("INSERT INTO THREAD_CACHE(THREAD, MODIFIED) VALUES({thread}, {modified})").on(
+          'thread -> threadKey,
+          'modified -> time).executeInsert()
+    }
+  }
 }

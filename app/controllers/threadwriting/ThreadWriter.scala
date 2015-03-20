@@ -1,14 +1,14 @@
-package controllers
+package controllers.threadwriting
 
 import controllers.Application._
-import controllers.localdb.LocalDatabase
 import controllers.digest.Digest
+import controllers.localdb.LocalDatabase
 import models.Response
 import play.api.Logger
-import scalaz._
-import Scalaz._
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scalaz.Scalaz._
+import scalaz._
 
 class ThreadWriter {
   def writeThread(datNumber: Long, from: String, mail: String, message: String): \/[ThreadWritingFailed, ThreadWritingSuccess.type] = {

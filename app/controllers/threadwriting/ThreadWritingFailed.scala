@@ -1,4 +1,4 @@
-package controllers
+package controllers.threadwriting
 
 sealed trait ThreadWritingFailed {
   val message: String

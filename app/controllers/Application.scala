@@ -3,7 +3,8 @@
  */
 package controllers
 
-import models.ThreadHeader
+import controllers.threadwriting.ThreadWriter
+import controllers.threadbuilding.ThreadBuilder
 import play.api._
 import play.api.mvc._
 import play.api.data._
@@ -15,17 +16,13 @@ import play.api.libs.concurrent.Promise
 import play.api.libs.Comet
 import anorm._
 import momijikawa.p2pscalaproto._
-import java.security.MessageDigest
 import scalaz._
 import Scalaz._
+import scala.concurrent.duration._
 
 object Application extends Controller {
   type NewThreadResult = (Symbol, Array[Byte], Long)
   type NewResponseResult = (Symbol, Array[Byte], Array[Byte], Long)
-
-  import scala.concurrent.Await
-  import scala.concurrent.duration._
-  import controllers.Utility._
 
   implicit val myCustomCharset = Codec.javaSupported("Shift_JIS")
   val chord2ch = new Chord2ch
@@ -116,7 +113,13 @@ object Application extends Controller {
             "subject" -> text)(WriteRequestT.apply)(WriteRequestT.unapply))
           val params = WriteRequestForm.bindFromRequest().get
           //val subj = request.body.asFormUrlEncoded.get.apply("subject")
-          buildThread( /*strMalSJIS2strU(*/ params /*params.subject*/ ) //)
+          val buildResult = new ThreadBuilder().buildThread(params.subject, params.FROM, params.mail, params.MESSAGE)
+          buildResult match {
+            case \/-(_) =>
+              Ok(views.html.successfullyWritten()).as(HTML)
+            case -\/(error) =>
+              Ok(views.html.failedBuilding(error.message)).as(HTML)
+          }
 
         case None =>
           val WriteRequestForm = Form(mapping(
@@ -140,48 +143,6 @@ object Application extends Controller {
               }
           }
       }
-  }
-
-  private def buildThread(request: WriteRequestT) = {
-    // put into chord
-    import org.apache.commons.codec.binary.Base64
-    Logger.info("building thread: " + request.subject)
-    val d = System.currentTimeMillis() / 1000
-    val data = ThreadHeader(request.subject.replace(_BR_, ""), d, request.FROM.replace(_BR_, ""), request.mail.replace(_BR_, ""), request.MESSAGE).toString.getBytes( /*"shift_jis"*/ )
-    val digestFactory = MessageDigest.getInstance("SHA-1")
-    val digest = digestFactory.digest(data)
-
-    val digestStr = Base64.encodeBase64(digest)
-    Logger.debug(
-      s"""
-       |--- Thread building information ---
-       |Title: ${request.subject}
-       |Epoch: $d
-       |Digest(SHA-1): $digestStr
-       |Name: ${request.FROM}
-       |Mail: ${request.mail}
-""".stripMargin)
-    Logger.debug("registering thread data into Chord DHT...")
-    val key: Option[Seq[Byte]] = Await.result(chord2ch.put(new String(Base64.encodeBase64(digest)), data.toStream).mapTo[Option[Seq[Byte]]], 30 second)
-    Logger.debug("registered into Chord DHT.")
-
-    Logger.debug("registering thread data into local database...")
-    //put into h2db
-    key match {
-      case Some(dht_key) =>
-        //println("key size: " + dht_key.size)
-        DB.withConnection {
-          implicit c =>
-            SQL("INSERT INTO THREAD_CACHE(THREAD, MODIFIED) VALUES({thread}, {modified})").on(
-              'thread -> dht_key.toArray[Byte],
-              'modified -> d).executeInsert()
-        }
-        Logger.debug("thread information has registered successfully.")
-        Ok(views.html.successfullyWritten()).as(HTML)
-      case None =>
-        Logger.error("building thread failed.")
-        Ok(views.html.failedBuilding()).as(HTML)
-    }
   }
 
   def searchResSince(epoch: Long) = {

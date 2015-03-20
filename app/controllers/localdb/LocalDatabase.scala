@@ -5,6 +5,7 @@ abstract class LocalDatabase {
   def fetchResponseKeysFromThreadKey(threadKey: Array[Byte]): Seq[Array[Byte]]
   def countResponsesIn(threadKey: Array[Byte]): Long
   def insertResponse(threadKey: Array[Byte], responseKey: Array[Byte], time: Long): Unit
+  def insertThread(threadKey: Array[Byte], time: Long): Unit
 }
 
 object LocalDatabase {
