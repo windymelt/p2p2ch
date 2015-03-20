@@ -66,13 +66,9 @@ object Application extends Controller {
     Ok(views.html.statusImageWithRefresh(interval)).as(HTML)
   }
 
-  def showThread(dat: String) = Action {
-    val datNumberOpt = try {
-      dat.substring(0, dat.lastIndexOf(".")).toLong.some
-    } catch {
-      case e: NumberFormatException => None
-      case _: Throwable => None
-    }
+  def showThread(datFileName: String) = Action {
+    val numberPartOfDatFileName = datFileName.substring(0, datFileName.lastIndexOf("."))
+    val datNumberOpt = Utility.string2LongOpt(numberPartOfDatFileName)
     val viewer = new ThreadViewer()
     val threadOpt = datNumberOpt >>= viewer.loadThread
     threadOpt match {
@@ -80,7 +76,6 @@ object Application extends Controller {
         Ok(viewer.convertThread2HTML(thread).getBytes("shift_jis"))
           .as("text/plain")
           .withHeaders("Cache-Conrol" -> "no-cache")
-
       case None => Ok("failed to load thread")
     }
   }

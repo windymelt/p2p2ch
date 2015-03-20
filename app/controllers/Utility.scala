@@ -34,4 +34,11 @@ object Utility {
                |┃　　　　┗━━━┛┃　　　　┗━━━┛┗━━┃　　┃
                | """.stripMargin('|')
 
+  def string2LongOpt(s: String): Option[Long] = try {
+      Some(s.toLong)
+    } catch {
+      case e: NumberFormatException => None
+      case _: Throwable => None
+    }
+
 }
