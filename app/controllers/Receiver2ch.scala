@@ -43,12 +43,12 @@ class Receiver2ch(stateAgt: Agent[ChordState]) extends MessageReceiver(stateAgt:
     val newResRslt = (a: ActorRef) => (sinceWhen: Long) => (a ? ('NewResSince, sinceWhen)).mapTo[List[NewResponseResult]]
     val newThreadRslt = (a: ActorRef) => (sinceWhen: Long) => (a ? ('NewThreadSince, sinceWhen)).mapTo[List[NewThreadResult]]
     val composedFuture = for {
-      snts <- newThreadRslt(thatActor)(lastload)
-      snrs <- newResRslt(thatActor)(lastload)
-    } yield (snrs, snts)
+      newThreads <- newThreadRslt(thatActor)(lastload)
+      newResponses <- newResRslt(thatActor)(lastload)
+    } yield (newThreads, newResponses)
     composedFuture.onSuccess {
-      case (snrs, snts) =>
-        Application.updateCache(snrs, snts)
+      case (threads, responses) =>
+        CacheUpdater.updateLocalCache(threads, responses)
         lastload = (System.currentTimeMillis() / 1000) - 3600 // a hour ago
     }
   }

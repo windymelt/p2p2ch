@@ -9,12 +9,9 @@ import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import play.api.db._
-import play.api.Play.current
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.Promise
 import play.api.libs.Comet
-import anorm._
 import momijikawa.p2pscalaproto._
 import scalaz._
 import Scalaz._
@@ -142,37 +139,6 @@ object Application extends Controller {
               }
           }
       }
-  }
-
-  def updateCache(nrr: List[NewResponseResult], ntr: List[NewThreadResult]) = {
-    import scala.util.control.Exception.ignoring
-    Logger.debug(s"updating thread/response local cache: thread(${ntr.size}), response(${nrr.size})")
-
-    nrr foreach {
-      one =>
-        // ignore unique fault
-        ignoring(classOf[Throwable]) {
-          DB.withConnection {
-            implicit c =>
-              SQL("INSERT INTO RESPONSE_CACHE(RESPONSE, THREAD, MODIFIED) VALUES ({response}, {thread}, {modified})").on(
-                "response" -> one._2, // case classにするとなぜか使えないという苦肉
-                "thread" -> one._3,
-                "modified" -> one._4).executeInsert()
-          }
-        }
-        ntr foreach {
-          one =>
-            ignoring(classOf[Throwable]) {
-              DB.withConnection {
-                implicit c =>
-                  SQL("INSERT INTO THREAD_CACHE(THREAD, MODIFIED) VALUES ({address}, {modified})").on(
-                    "address" -> one._2,
-                    "modified" -> one._3).executeInsert()
-              }
-            }
-        }
-    }
-    Logger.debug("cache has updated successfully.")
   }
 
   def showStatusGraphRealtime = Action {
