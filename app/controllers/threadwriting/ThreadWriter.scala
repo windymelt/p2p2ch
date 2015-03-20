@@ -18,15 +18,12 @@ class ThreadWriter {
     Logger.info("writing response.")
     Logger.debug("checking whether there's thread key in local database.")
     val threadKeyOpt = LocalDatabase.default.fetchThreadKeyFromDatNumber(datNumber)
-
     threadKeyOpt match {
-      case None ⇒
-        ThreadNotFoundInLocalDatabase.left
+      case None ⇒ ThreadNotFoundInLocalDatabase.left
       case Some(key) ⇒
         Logger.trace("thread key found.")
 
         val responseExceedsLimit: Boolean = LocalDatabase.default.countResponsesIn(key) >= 999 // >>1はカウントされないため
-
         if (responseExceedsLimit) { return ThreadOverRun.left }
 
         val currentUNIXTime = System.currentTimeMillis() / 1000
@@ -59,6 +56,5 @@ class ThreadWriter {
             DHTPutFailed.left
         }
     }
-
   }
 }
