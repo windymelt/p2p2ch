@@ -144,28 +144,6 @@ object Application extends Controller {
       }
   }
 
-  def searchResSince(epoch: Long) = {
-    Logger.debug(s"searching responses uploaded since $epoch or more")
-    DB.withConnection {
-      implicit c =>
-        SQL("SELECT RESPONSE, THREAD, MODIFIED FROM RESPONSE_CACHE WHERE MODIFIED >= {since}").on("since" -> epoch)().map {
-          case Row(response: Array[Byte], thread: Array[Byte], modified: Long) =>
-            ('newResponseResult, response, thread, modified)
-        }.toList
-    }
-  }
-
-  def searchThreadSince(epoch: Long) = {
-    Logger.debug(s"searching thread built since $epoch or more")
-    DB.withConnection {
-      implicit c =>
-        SQL("SELECT THREAD, MODIFIED FROM THREAD_CACHE WHERE MODIFIED >= {since}").on("since" -> epoch)().map {
-          case Row(thread: Array[Byte], modified: Long) =>
-            ('newThreadResult, thread, modified)
-        }.toList
-    }
-  }
-
   def updateCache(nrr: List[NewResponseResult], ntr: List[NewThreadResult]) = {
     import scala.util.control.Exception.ignoring
     Logger.debug(s"updating thread/response local cache: thread(${ntr.size}), response(${nrr.size})")

@@ -49,4 +49,22 @@ object SQLLocalDatabase extends LocalDatabase {
           'modified -> time).executeInsert()
     }
   }
+  def getResponsesAfter(sinceUNIXTime: Long): List[(Symbol, Array[Byte], Array[Byte], Long)] = {
+    DB.withConnection {
+      implicit c =>
+        SQL("SELECT RESPONSE, THREAD, MODIFIED FROM RESPONSE_CACHE WHERE MODIFIED >= {since}").on("since" -> sinceUNIXTime)().map {
+          case Row(response: Array[Byte], thread: Array[Byte], modified: Long) =>
+            ('newResponseResult, response, thread, modified)
+        }.toList
+    }
+  }
+  def getThreadsAfter(sinceUNIXTime: Long): List[(Symbol, Array[Byte], Long)] = {
+    DB.withConnection {
+      implicit c =>
+        SQL("SELECT THREAD, MODIFIED FROM THREAD_CACHE WHERE MODIFIED >= {since}").on("since" -> sinceUNIXTime)().map {
+          case Row(thread: Array[Byte], modified: Long) =>
+            ('newThreadResult, thread, modified)
+        }.toList
+    }
+  }
 }

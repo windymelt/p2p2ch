@@ -1,5 +1,6 @@
 package controllers
 
+import controllers.localdb.LocalDatabase
 import momijikawa.p2pscalaproto.{ ChordState, nodeID, MessageReceiver }
 import akka.actor.{ ActorContext, ActorRef }
 import akka.agent.Agent
@@ -12,8 +13,8 @@ class Receiver2ch(stateAgt: Agent[ChordState]) extends MessageReceiver(stateAgt:
   val fetcher = context.actorOf(akka.actor.Props[DataFetchingBeacon], "FetchingBeacon")
 
   override def receiveExtension(x: Any, sender: ActorRef)(implicit context: ActorContext) = x match {
-    case ('NewResSince, time: Long) => sender ! Application.searchResSince(time)
-    case ('NewThreadSince, time: Long) => sender ! Application.searchThreadSince(time)
+    case ('NewResSince, time: Long) => sender ! LocalDatabase.default.getResponsesAfter(time)
+    case ('NewThreadSince, time: Long) => sender ! LocalDatabase.default.getThreadsAfter(time)
     case PullNew => pullNewData
     case m => log.warning(s"unknown message: $m")
   }
