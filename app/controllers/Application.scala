@@ -72,11 +72,11 @@ object Application extends Controller {
     val viewer = new ThreadViewer()
     val threadOpt = datNumberOpt >>= viewer.loadThread
     threadOpt match {
-      case Some(thread) =>
+      case Some(thread) ⇒
         Ok(viewer.convertThread2HTML(thread).getBytes("shift_jis"))
           .as("text/plain")
           .withHeaders("Cache-Conrol" -> "no-cache")
-      case None => Ok("failed to load thread")
+      case None ⇒ Ok("failed to load thread")
     }
   }
 
@@ -89,12 +89,12 @@ object Application extends Controller {
   case class WriteRequestR(bbs: String, key: Long, time: String, submit: String, FROM: String, mail: String, MESSAGE: String)
 
   def writeThread = Action {
-    implicit request =>
+    implicit request ⇒
       Logger.info(s"request encoding is: ${request.charset}")
 
       val subjectForm = Form("subject" -> text)
       subjectForm.bindFromRequest().value match {
-        case Some(_) =>
+        case Some(_) ⇒
           val WriteRequestForm = Form(mapping(
             "bbs" -> text,
             "time" -> text,
@@ -106,13 +106,13 @@ object Application extends Controller {
           val params = WriteRequestForm.bindFromRequest().get
           val buildResult = new ThreadBuilder().buildThread(params.subject, params.FROM, params.mail, params.MESSAGE)
           buildResult match {
-            case \/-(_) =>
+            case \/-(_) ⇒
               Ok(views.html.threadPostSuccessful()).as(HTML)
-            case -\/(error) =>
+            case -\/(error) ⇒
               Ok(views.html.threadBuildFailed(error.message)).as(HTML)
           }
 
-        case None =>
+        case None ⇒
           val WriteRequestForm = Form(mapping(
             "bbs" -> text,
             "key" -> longNumber,
@@ -123,13 +123,13 @@ object Application extends Controller {
             "MESSAGE" -> text)(WriteRequestR.apply)(WriteRequestR.unapply))
           val params = WriteRequestForm.bindFromRequest().get
           params.key match {
-            case 0 => config_information(params.FROM, params.mail, params.MESSAGE)
-            case threadDatNumber =>
+            case 0 ⇒ config_information(params.FROM, params.mail, params.MESSAGE)
+            case threadDatNumber ⇒
               val writeResult = new ThreadWriter().writeThread(threadDatNumber, params.FROM, params.mail, params.MESSAGE)
               writeResult match {
-                case \/-(_) => // Success!
+                case \/-(_) ⇒ // Success!
                   Ok(views.html.threadPostSuccessful()).as(HTML)
-                case -\/(error) =>
+                case -\/(error) ⇒
                   Ok(views.html.threadWriteFailed(error.message)).as(HTML)
               }
           }
@@ -141,7 +141,7 @@ object Application extends Controller {
   }
 
   def showStatusGraphComet = Action {
-    request =>
+    request ⇒
       val host = request.headers("Host")
       Ok.chunked(notifier &> Comet(callback = "parent.changed"))
   }

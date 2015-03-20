@@ -20,9 +20,9 @@ class ThreadWriter {
     val threadKeyOpt = LocalDatabase.default.fetchThreadKeyFromDatNumber(datNumber)
 
     threadKeyOpt match {
-      case None =>
+      case None ⇒
         ThreadNotFoundInLocalDatabase.left
-      case Some(key) =>
+      case Some(key) ⇒
         Logger.trace("thread key found.")
 
         val responseExceedsLimit: Boolean = LocalDatabase.default.countResponsesIn(key) >= 999 // >>1はカウントされないため
@@ -48,13 +48,13 @@ class ThreadWriter {
         Logger.debug("registered successfully.")
 
         dht_keyO match {
-          case Some(dht_key) =>
+          case Some(dht_key) ⇒
             // put into h2db
             Logger.debug("registering response information into local database...")
             LocalDatabase.default.insertResponse(key, dht_key.toArray, currentUNIXTime)
             Logger.info("response has written succesfully.")
             ThreadWritingSuccess.right
-          case None =>
+          case None ⇒
             Logger.error("response writing failed.")
             DHTPutFailed.left
         }

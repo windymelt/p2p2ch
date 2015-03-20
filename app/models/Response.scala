@@ -32,23 +32,23 @@ object Response {
    * @return レスアンカーが永続化されたResponse
    */
   def toPermanent(res: Response): Response = {
-    val replacer: (Regex.Match) => String = {
-      val intify: (Regex.Match) => Int = (_: Regex.Match).group("resNumber").toInt
-      val DBInterrogate: (Int) => String = {
-        (n: Int) =>
+    val replacer: (Regex.Match) ⇒ String = {
+      val intify: (Regex.Match) ⇒ Int = (_: Regex.Match).group("resNumber").toInt
+      val DBInterrogate: (Int) ⇒ String = {
+        (n: Int) ⇒
           n match {
-            case 1 => ">>1"
-            case m =>
+            case 1 ⇒ ">>1"
+            case m ⇒
               val decrN = m - 2 // >>1は別のDBに格納されているため除外する ofst0-. 1. ofst1. 2.
               DB.withConnection {
-                implicit c =>
+                implicit c ⇒
                   SQL(
                     """SELECT RESPONSE """ +
                       """FROM RESPONSE_CACHE WHERE THREAD = {thread} """ +
                       """ORDER BY MODIFIED ASC LIMIT 1 OFFSET {no}"""
                   ).on('thread -> res.thread, 'no -> decrN)().map {
-                      case Row(response: Array[Byte]) => ">>" + new String(Base64.encodeBase64(response)) + "@"
-                      case _ => ">>" + m.toString
+                      case Row(response: Array[Byte]) ⇒ ">>" + new String(Base64.encodeBase64(response)) + "@"
+                      case _                          ⇒ ">>" + m.toString
                     }.toList.headOption.getOrElse(">>" + m.toString)
               }
           }
@@ -64,28 +64,28 @@ object Response {
    * @return レスアンカーがローカルな形式に変換されたレスポンス
    */
   def toLocalized(res: Response): Response = {
-    val replacer: (Regex.Match) => String = {
+    val replacer: (Regex.Match) ⇒ String = {
       //play.api.Logger.info("replcr actv")
-      val arrayfy: (Regex.Match) => Array[Byte] = (m: Regex.Match) => Base64.decodeBase64(m.group("data").getBytes())
+      val arrayfy: (Regex.Match) ⇒ Array[Byte] = (m: Regex.Match) ⇒ Base64.decodeBase64(m.group("data").getBytes())
       val DBInterrogate = {
-        (arr: Array[Byte]) =>
+        (arr: Array[Byte]) ⇒
           DB.withConnection {
-            implicit c =>
+            implicit c ⇒
               SQL(
                 "SELECT ROWNUM() AS NUMBER, RESPONSE FROM ( " +
                   "SELECT THREAD, RESPONSE, MODIFIED " +
                   "FROM RESPONSE_CACHE " +
                   "WHERE THREAD = {thread} ORDER BY MODIFIED ASC" +
                   ")" /*whr res*/ ).on('thread -> res.thread)().collect {
-                  case n =>
+                  case n ⇒
                     val nn = n.asMap
                     //play.api.Logger.warn(nn.toString())
                     //play.api.Logger.warn((nn(".NUMBER").asInstanceOf[Int], new String(Base64.encodeBase64(nn("_0.RESPONSE").asInstanceOf[Option[Array[Byte]]].get))) toString())
                     (nn(".NUMBER").asInstanceOf[Int] + 1) -> new String(Base64.encodeBase64(nn("_0.RESPONSE").asInstanceOf[Option[Array[Byte]]].get))
                 }.toList.map {
-                  pair => play.api.Logger.info(pair._2 + " vs. " + new String(Base64.encodeBase64(arr))); pair
+                  pair ⇒ play.api.Logger.info(pair._2 + " vs. " + new String(Base64.encodeBase64(arr))); pair
                 }.collect {
-                  case (n: Int, res: String) if res == new String(Base64.encodeBase64(arr)) => s"&gt;&gt;$n"
+                  case (n: Int, res: String) if res == new String(Base64.encodeBase64(arr)) ⇒ s"&gt;&gt;$n"
                 }.headOption.getOrElse("&gt;&gt;N/A")
           }
       }

@@ -35,11 +35,11 @@ class ThreadBuilder {
 
     Logger.debug("registering thread data into local database...")
     key match {
-      case Some(dht_key) =>
+      case Some(dht_key) ⇒
         LocalDatabase.default.insertThread(dht_key.toArray, currentUNIXTime)
         Logger.debug("thread information has registered successfully.")
         ThreadBuildingSuccess.right
-      case None =>
+      case None ⇒
         Logger.error("building thread failed.")
         DHTPutFailed.left
     }

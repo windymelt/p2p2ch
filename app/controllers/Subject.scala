@@ -13,7 +13,7 @@ import Utility._BR_
 
 object Subject {
 
-  def generateSubject(chord2ch: => Chord2ch): String = {
+  def generateSubject(chord2ch: ⇒ Chord2ch): String = {
     // DBからキャッシュを読んでDHTから取り出して文字データを再構成してThread型に変換してsubject形式にする
     import scala.concurrent.ExecutionContext.Implicits.global
     import play.api.libs.concurrent.Akka
@@ -21,27 +21,27 @@ object Subject {
     play.Logger.debug("generating subject.txt...")
 
     val threads = DB.withConnection {
-      implicit c =>
+      implicit c ⇒
         SQL("SELECT THREAD FROM THREAD_CACHE")().map {
-          case Row(thread: Array[Byte]) => thread
+          case Row(thread: Array[Byte]) ⇒ thread
         }.toList
     }
 
     play.Logger.debug(s"Thread addresses in DB: ${threads.size}")
 
-    val threadvalsF: (List[Array[Byte]]) => Future[List[Option[Stream[Byte]]]] = thr => Akka.future {
+    val threadvalsF: (List[Array[Byte]]) ⇒ Future[List[Option[Stream[Byte]]]] = thr ⇒ Akka.future {
       Await.result(Future.sequence(thr.map {
-        key => chord2ch.get(key.toSeq)
+        key ⇒ chord2ch.get(key.toSeq)
       }), 50 second)
     }
 
-    val tokenize: (Stream[Byte]) => ThreadHeader = thr => (new String(thr.toArray)).split("""<>""") |> ((s: Array[String]) => ThreadHeader(s(0), s(1).toLong, s(2), s(3), s(4)))
+    val tokenize: (Stream[Byte]) ⇒ ThreadHeader = thr ⇒ (new String(thr.toArray)).split("""<>""") |> ((s: Array[String]) ⇒ ThreadHeader(s(0), s(1).toLong, s(2), s(3), s(4)))
 
-    val future_list_opt_mapper: (Stream[Byte] => ThreadHeader) => Future[List[Option[Stream[Byte]]]] => List[ThreadHeader] =
-      f => flo =>
-        Await.result(flo map (lis => lis.map(opt => opt map f).filterNot(_.isEmpty).map(_.get)), 100 seconds)
+    val future_list_opt_mapper: (Stream[Byte] ⇒ ThreadHeader) ⇒ Future[List[Option[Stream[Byte]]]] ⇒ List[ThreadHeader] =
+      f ⇒ flo ⇒
+        Await.result(flo map (lis ⇒ lis.map(opt ⇒ opt map f).filterNot(_.isEmpty).map(_.get)), 100 seconds)
 
-    val genBody: (List[ThreadHeader]) => String = t => views.html.threadList(t).body
+    val genBody: (List[ThreadHeader]) ⇒ String = t ⇒ views.html.threadList(t).body
 
     val body: String = threads |> (threadvalsF >>> (tokenize |> future_list_opt_mapper) >>> genBody)
 

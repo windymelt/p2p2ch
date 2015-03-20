@@ -15,7 +15,7 @@ object StatusGraph {
   val HEIGHT: Int = 512
   val WIDTH: Int = 512
 
-  def draw(action: (Graphics2D) => Unit) = {
+  def draw(action: (Graphics2D) ⇒ Unit) = {
     val bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB)
     val gp = bi.createGraphics()
     gp.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -50,10 +50,10 @@ object StatusGraph {
       gp.drawOval(WIDTH / 2 + (WIDTH * Math.cos(rad) * (mapRatio * 0.5) - r * 0.5) toInt, HEIGHT / 2 + (HEIGHT * Math.sin(rad) * (mapRatio * 0.5) - r * 0.5) toInt, r toInt, r toInt)
     }
     str match {
-      case Some((s, c)) =>
+      case Some((s, c)) ⇒
         gp.setColor(c)
         gp.drawString(s, xDclt, yDclt)
-      case None =>
+      case None ⇒
       // do nothing
     }
   }
@@ -69,25 +69,25 @@ object StatusGraph {
   def nodeID2rad(nid: TnodeID): Double = (BigInt.apply(1, nid.idVal) / (TnodeID.CHORDSIZE / 36000)).toDouble / 36000.0 * 2 * Math.PI
 
   def getStatusImage(st: ChordState): Array[Byte] = {
-    val act = (gp: Graphics2D) => {
+    val act = (gp: Graphics2D) ⇒ {
       gp.setStroke(new BasicStroke(1f))
       drawMap(0.8, Color.GREEN)(gp)
       drawMap(0.6, Color.GREEN)(gp)
 
       st.succList.nodes.list.foreach {
-        ida =>
+        ida ⇒
           drawLineOnMap(0.8, nodeID2rad(ida), nodeID2rad(st.selfID.get), Color.green)(gp)
           drawCircleOnMap(0.8, nodeID2rad(ida), (WIDTH + HEIGHT) / 2 * 0.01, Color.GREEN, false, None)(gp)
       }
 
       st.fingerList.nodes.list.foreach {
-        ida =>
+        ida ⇒
           drawLineOnMap(0.6, nodeID2rad(ida), nodeID2rad(st.selfID.get), Color.yellow)(gp)
           drawCircleOnMap(0.6, nodeID2rad(ida), (WIDTH + HEIGHT) / 2 * 0.01, Color.YELLOW, false, None)(gp)
       }
 
       st.pred.foreach {
-        prd =>
+        prd ⇒
           drawLineOnMap(0.8, nodeID2rad(prd), nodeID2rad(st.selfID.get), Color.magenta)(gp)
           drawCircleOnMap(0.8, nodeID2rad(prd), (WIDTH + HEIGHT) / 2 * 0.01, Color.MAGENTA, true, None)(gp)
       }

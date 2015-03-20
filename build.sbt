@@ -8,10 +8,6 @@ version := "2.0"
 
 scalaVersion := "2.11.6"
 
-// コードフォーマッタプラグインscalariformの設定をロード
-// cf. scalariform.sbt
-scalariformSettings
-
 // コーディング規約チェッカプラグインscalastyleの設定をロード
 org.scalastyle.sbt.ScalastylePlugin.Settings
 
