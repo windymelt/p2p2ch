@@ -4,7 +4,7 @@
 package controllers
 
 import controllers.threadwriting.ThreadWriter
-import controllers.threadbuilding.ThreadBuilder
+import controllers.threadbuilding.{ ThreadBuilder, ThreadBuildingFormExtractor }
 import play.api._
 import play.api.mvc._
 import play.api.data._
@@ -57,8 +57,6 @@ object Application extends Controller {
     new String(str.getBytes("Shift-JIS"), "utf-8")
   }
 
-  case class WriteRequestT(bbs: String, time: String, submit: String, FROM: String, mail: String, MESSAGE: String, subject: String)
-
   case class WriteRequestR(bbs: String, key: Long, time: String, submit: String, FROM: String, mail: String, MESSAGE: String)
 
   def writeThread = Action {
@@ -68,15 +66,7 @@ object Application extends Controller {
       val subjectForm = Form("subject" -> text)
       subjectForm.bindFromRequest().value match {
         case Some(_) ⇒
-          val WriteRequestForm = Form(mapping(
-            "bbs" -> text,
-            "time" -> text,
-            "submit" -> text,
-            "FROM" -> text,
-            "mail" -> text,
-            "MESSAGE" -> text,
-            "subject" -> text)(WriteRequestT.apply)(WriteRequestT.unapply))
-          val params = WriteRequestForm.bindFromRequest().get
+          val params = new ThreadBuildingFormExtractor().extract
           val buildResult = new ThreadBuilder().buildThread(params.subject, params.FROM, params.mail, params.MESSAGE)
           buildResult match {
             case \/-(_)     ⇒ Ok(views.html.threadPostSuccessful()).as(HTML)
