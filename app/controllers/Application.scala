@@ -39,11 +39,6 @@ object Application extends Controller {
   def showStatusImageWithRefresh(interval: Int = 30) = Action { Ok(views.html.statusImageWithRefresh(interval)).as(HTML) }
   def showStatusGraphRealtime = Action { Ok(views.html.statusImageRealtime()).as(HTML).withHeaders("Cache-Control" -> "no-cache") }
 
-  def config_information(from: String, mail: String, message: String) = {
-    Information.configurate(message)
-    Ok(views.html.threadPostSuccessful()).as(HTML)
-  }
-
   def showThread(datFileName: String) = Action {
     val numberPartOfDatFileName = datFileName.substring(0, datFileName.lastIndexOf("."))
     val datNumberOpt = Utility.string2LongOpt(numberPartOfDatFileName)
@@ -99,7 +94,9 @@ object Application extends Controller {
             "MESSAGE" -> text)(WriteRequestR.apply)(WriteRequestR.unapply))
           val params = WriteRequestForm.bindFromRequest().get
           params.key match {
-            case 0 ⇒ config_information(params.FROM, params.mail, params.MESSAGE)
+            case 0 ⇒
+              Information.configurate(params.MESSAGE)
+              Ok(views.html.threadPostSuccessful()).as(HTML)
             case threadDatNumber ⇒
               val writeResult = new ThreadWriter().writeThread(threadDatNumber, params.FROM, params.mail, params.MESSAGE)
               writeResult match {
