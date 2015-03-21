@@ -3,7 +3,7 @@
  */
 package controllers
 
-import controllers.threadwriting.ThreadWriter
+import controllers.threadwriting.{ ThreadWriter, ThreadWritingFormExtractor }
 import controllers.threadbuilding.{ ThreadBuilder, ThreadBuildingFormExtractor }
 import play.api._
 import play.api.mvc._
@@ -57,8 +57,6 @@ object Application extends Controller {
     new String(str.getBytes("Shift-JIS"), "utf-8")
   }
 
-  case class WriteRequestR(bbs: String, key: Long, time: String, submit: String, FROM: String, mail: String, MESSAGE: String)
-
   def writeThread = Action {
     implicit request ⇒
       Logger.info(s"request encoding is: ${request.charset}")
@@ -74,15 +72,7 @@ object Application extends Controller {
           }
 
         case None ⇒
-          val WriteRequestForm = Form(mapping(
-            "bbs" -> text,
-            "key" -> longNumber,
-            "time" -> text,
-            "submit" -> text,
-            "FROM" -> text,
-            "mail" -> text,
-            "MESSAGE" -> text)(WriteRequestR.apply)(WriteRequestR.unapply))
-          val params = WriteRequestForm.bindFromRequest().get
+          val params = new ThreadWritingFormExtractor().extract
           params.key match {
             case 0 ⇒
               Information.configurate(params.MESSAGE)
