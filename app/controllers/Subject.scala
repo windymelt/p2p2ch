@@ -11,7 +11,6 @@ import Scalaz._
 import Utility._BR_
 
 object Subject {
-
   def generateSubject(chord2ch: ⇒ Chord2ch): String = {
     // DBからキャッシュを読んでDHTから取り出して文字データを再構成してThread型に変換してsubject形式にする
     import scala.concurrent.ExecutionContext.Implicits.global
