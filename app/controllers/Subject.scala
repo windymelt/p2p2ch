@@ -1,9 +1,8 @@
 package controllers
 
 import models.ThreadHeader
-import play.api.db._
+import controllers.localdb.LocalDatabase
 import play.api.Play.current
-import anorm._
 import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -20,12 +19,7 @@ object Subject {
 
     play.Logger.debug("generating subject.txt...")
 
-    val threads = DB.withConnection {
-      implicit c ⇒
-        SQL("SELECT THREAD FROM THREAD_CACHE")().map {
-          case Row(thread: Array[Byte]) ⇒ thread
-        }.toList
-    }
+    val threads = LocalDatabase.default.getThreads
 
     play.Logger.debug(s"Thread addresses in DB: ${threads.size}")
 

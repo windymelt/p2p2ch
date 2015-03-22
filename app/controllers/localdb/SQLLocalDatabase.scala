@@ -67,4 +67,12 @@ object SQLLocalDatabase extends LocalDatabase {
         }.toList
     }
   }
+  def getThreads: List[Array[Byte]] = {
+    DB.withConnection {
+      implicit c ⇒
+        SQL("SELECT THREAD FROM THREAD_CACHE")().map {
+          case Row(thread: Array[Byte]) ⇒ thread
+        }.toList
+    }
+  }
 }
