@@ -57,34 +57,32 @@ object Application extends Controller {
     new String(str.getBytes("Shift-JIS"), "utf-8")
   }
 
-  def writeThread = Action {
-    implicit request ⇒
-      Logger.info(s"request encoding is: ${request.charset}")
+  def writeThread = Action { implicit request ⇒
+    Logger.info(s"request encoding is: ${request.charset}")
 
-      val subjectForm = Form("subject" -> text)
-      subjectForm.bindFromRequest().value match {
-        case Some(_) ⇒
-          val params = new ThreadBuildingFormExtractor().extract
-          val buildResult = new ThreadBuilder().buildThread(params.subject, params.FROM, params.mail, params.MESSAGE)
-          buildResult match {
+    val subjectForm = Form("subject" -> text) // スレ建て時にはsubjectに値が入っている
+    val isBuildingThread = subjectForm.bindFromRequest().value.isDefined
+    if (isBuildingThread) {
+      val params = new ThreadBuildingFormExtractor().extract
+      val buildResult = new ThreadBuilder().buildThread(params.subject, params.FROM, params.mail, params.MESSAGE)
+      buildResult match {
+        case \/-(_)     ⇒ Ok(views.html.threadPostSuccessful()).as(HTML)
+        case -\/(error) ⇒ Ok(views.html.threadBuildFailed(error.message)).as(HTML)
+      }
+    } else {
+      val params = new ThreadWritingFormExtractor().extract
+      params.key match {
+        case 0 ⇒
+          Information.configurate(params.MESSAGE)
+          Ok(views.html.threadPostSuccessful()).as(HTML)
+        case threadDatNumber ⇒
+          val writeResult = new ThreadWriter().writeThread(threadDatNumber, params.FROM, params.mail, params.MESSAGE)
+          writeResult match {
             case \/-(_)     ⇒ Ok(views.html.threadPostSuccessful()).as(HTML)
-            case -\/(error) ⇒ Ok(views.html.threadBuildFailed(error.message)).as(HTML)
-          }
-
-        case None ⇒
-          val params = new ThreadWritingFormExtractor().extract
-          params.key match {
-            case 0 ⇒
-              Information.configurate(params.MESSAGE)
-              Ok(views.html.threadPostSuccessful()).as(HTML)
-            case threadDatNumber ⇒
-              val writeResult = new ThreadWriter().writeThread(threadDatNumber, params.FROM, params.mail, params.MESSAGE)
-              writeResult match {
-                case \/-(_)     ⇒ Ok(views.html.threadPostSuccessful()).as(HTML)
-                case -\/(error) ⇒ Ok(views.html.threadWriteFailed(error.message)).as(HTML)
-              }
+            case -\/(error) ⇒ Ok(views.html.threadWriteFailed(error.message)).as(HTML)
           }
       }
+    }
   }
 
   def showStatusGraphComet = Action {
