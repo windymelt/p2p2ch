@@ -1,6 +1,6 @@
 package controllers.threadwriting
 
-import controllers.Application._
+import controllers.dht.DHT
 import controllers.digest.Digest
 import controllers.localdb.LocalDatabase
 import models.Response
@@ -29,7 +29,7 @@ class ThreadWriter {
         val currentUNIXTime = System.currentTimeMillis() / 1000
         val data = Response.toPermanent(Response(key, from, mail, message, currentUNIXTime)).toString.getBytes( /*"shift_jis"*/ )
 
-        val digestBase64 = Digest.default.generateBase64DigestFromByteArray(data)
+        val digestBase64 = Digest.default.generateBase64DigestByteArrayFromByteArray(data)
         Logger.debug(
           s"""
              |--- response information ---
@@ -41,7 +41,7 @@ class ThreadWriter {
             """.stripMargin)
 
         Logger.debug("registering response information into Chord DHT...")
-        val dht_keyO = Await.result(chord2ch.put(digestBase64, data.toStream), 30 seconds)
+        val dht_keyO = Await.result(DHT.default.put(digestBase64, data.toStream), 30 seconds).toOption
         Logger.debug("registered successfully.")
 
         dht_keyO match {

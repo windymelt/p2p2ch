@@ -1,7 +1,7 @@
 package controllers
 
 import momijikawa.p2pscalaproto.ChordState
-import Application.chord2ch
+import controllers.dht.DHT
 
 object Information {
 
@@ -91,7 +91,7 @@ object Reference {
   }
 
   def work: String = {
-    chord2ch.getReference.getOrElse("N/A")
+    DHT.default.identifier.getOrElse("N/A")
   }
 }
 
@@ -104,7 +104,7 @@ object Join {
   }
 
   def work(reference: String): String = {
-    chord2ch.join(reference);
+    DHT.default.join(reference);
     "接続を試行します"
   }
 }
@@ -118,27 +118,7 @@ object Status {
   }
 
   def work: String = {
-    val cst: ChordState = chord2ch.getStatus
-    Seq(
-      s"Self: ${
-        cst.selfID.map {
-          _.asNodeID
-        }.getOrElse("N/A")
-      }",
-      "Succ:",
-      s"${cst.succList.nodes.list.mkString("<br>")}",
-      "",
-      "Finger:",
-      s"${cst.fingerList.nodes.list.mkString("<br>")}",
-      "",
-      s"Pred: ${
-        cst.pred.map {
-          _.asNodeID
-        }.getOrElse("N/A")
-      }",
-      s"Data: ${cst.dataholder.size}",
-      s"Stabilizer: ${cst.stabilizer.status}"
-    ).mkString("<br>")
+    DHT.default.info.getOrElse("")
   }
 }
 

@@ -1,6 +1,6 @@
 package controllers.threadbuilding
 
-import controllers.Application._
+import controllers.dht.DHT
 import controllers.Utility._
 import controllers.digest.Digest
 import controllers.localdb.LocalDatabase
@@ -17,7 +17,7 @@ class ThreadBuilder {
     Logger.info("building thread: " + subject)
     val currentUNIXTime = System.currentTimeMillis() / 1000
     val data = ThreadHeader(subject.replace(_BR_, ""), currentUNIXTime, from.replace(_BR_, ""), mail.replace(_BR_, ""), message).toString.getBytes( /*"shift_jis"*/ )
-    val digestBase64 = Digest.default.generateBase64DigestFromByteArray(data)
+    val digestBase64 = Digest.default.generateBase64DigestByteArrayFromByteArray(data)
 
     Logger.debug(
       s"""
@@ -30,7 +30,7 @@ class ThreadBuilder {
 """.stripMargin)
 
     Logger.debug("registering thread data into Chord DHT...")
-    val key: Option[Seq[Byte]] = Await.result(chord2ch.put(digestBase64, data.toStream).mapTo[Option[Seq[Byte]]], 30 seconds)
+    val key: Option[Seq[Byte]] = Await.result(DHT.default.put(digestBase64, data.toStream), 30 seconds).toOption
     Logger.debug("registered into Chord DHT.")
 
     Logger.debug("registering thread data into local database...")

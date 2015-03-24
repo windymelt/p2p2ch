@@ -1,7 +1,7 @@
 package controllers
 
 import models.{ Responses, Thread, Response, ThreadHeader }
-import controllers.Application._
+import controllers.dht.DHT
 import controllers.Utility._
 import play.api.Logger
 import scala.concurrent.duration._
@@ -20,9 +20,8 @@ class ThreadViewer {
     if (threadKeyOpt.isEmpty) { return None }
     val responseKeys = threadKeyOpt map LocalDatabase.default.fetchResponseKeysFromThreadKey get
 
-    val threadData = (allCatch opt {
-      Await.result(chord2ch.get(threadKeyOpt.get.toSeq), 10 second)
-    }).flatten
+    val threadData = Await.result(DHT.default.get(threadKeyOpt.get.toSeq), 10 seconds).toOption
+
     threadData match {
       case Some(threadData: Stream[Byte]) ⇒
         val threadDataSplited = new String(threadData.toArray[Byte]).split("<>")
@@ -30,7 +29,7 @@ class ThreadViewer {
         val responses = responseKeys.map {
           case response: Array[Byte] ⇒
             allCatch opt {
-              Await.result(chord2ch.get(response.toSeq), 10 second)
+              Await.result(DHT.default.get(response.toSeq), 10 seconds).toOption
             }
           case otherwise ⇒ None
           /*}.filterNot {
