@@ -1,5 +1,6 @@
 package controllers
 
+import controllers.digest.Digest
 import models.{ Responses, Thread, Response, ThreadHeader }
 import controllers.dht.DHT
 import controllers.Utility._
@@ -18,12 +19,16 @@ class ThreadViewer {
 
     val threadKeyOpt = LocalDatabase.default.fetchThreadKeyFromDatNumber(datNumber)
     if (threadKeyOpt.isEmpty) { return None }
-    val responseKeys = threadKeyOpt map LocalDatabase.default.fetchResponseKeysFromThreadKey get
-
     val threadData = Await.result(DHT.default.get(threadKeyOpt.get.toSeq), 10 seconds).toOption
+
+    Logger.trace("thread key: " + Digest.base64(threadKeyOpt.get))
+    val responseKeys = threadKeyOpt map LocalDatabase.default.fetchResponseKeysFromThreadKey get;
+    Logger.trace("Response keys: ")
+    responseKeys.map(arr ⇒ Digest.base64(arr)).foreach(str ⇒ Logger.trace(str))
 
     threadData match {
       case Some(threadData: Stream[Byte]) ⇒
+        Logger.trace("processing stream: " + new String(threadData.toArray))
         val threadDataSplited = new String(threadData.toArray[Byte]).split("<>")
         val threadC = ThreadHeader(threadDataSplited(0), threadDataSplited(1).toLong, threadDataSplited(2), threadDataSplited(3), threadDataSplited(4))
         val responses = responseKeys.map {

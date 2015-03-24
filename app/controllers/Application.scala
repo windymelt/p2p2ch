@@ -39,6 +39,7 @@ object Application extends Controller {
     val datNumberOpt = Utility.string2LongOpt(numberPartOfDatFileName)
     val viewer = new ThreadViewer()
     val threadOpt = datNumberOpt >>= viewer.loadThread
+    Logger.trace("thread load done.")
     threadOpt match {
       case Some(thread) ⇒
         Ok(viewer.convertThread2HTML(thread).getBytes("shift_jis"))
