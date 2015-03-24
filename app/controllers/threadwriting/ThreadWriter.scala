@@ -29,7 +29,7 @@ class ThreadWriter {
         val currentUNIXTime = System.currentTimeMillis() / 1000
         val data = Response.toPermanent(Response(key, from, mail, message, currentUNIXTime)).toString.getBytes( /*"shift_jis"*/ )
 
-        val digestBase64 = Digest.default.generateBase64DigestByteArrayFromByteArray(data)
+        val digest = Digest.default.generateDigestFromByteArray(data)
         Logger.debug(
           s"""
              |--- response information ---
@@ -37,11 +37,11 @@ class ThreadWriter {
               |From: $from
               |Mail: $mail
               |MESSAGE: $message
-              |Digest(SHA-1): $digestBase64
+              |Digest(SHA-1): ${Digest.base64(digest)}
             """.stripMargin)
 
         Logger.debug("registering response information into Chord DHT...")
-        val dht_keyO = Await.result(DHT.default.put(digestBase64, data.toStream), 30 seconds).toOption
+        val dht_keyO = Await.result(DHT.default.put(digest, data.toStream), 30 seconds).toOption
         Logger.debug("registered successfully.")
 
         dht_keyO match {
