@@ -11,7 +11,7 @@ import scalaz._
 import Scalaz._
 
 object DHTChord2ch extends DHT {
-  val dht: Agent[Option[Chord2ch]] = Agent(Option[Chord2ch](null))
+  lazy val dht: Agent[Option[Chord2ch]] = Agent(Option[Chord2ch](null))
   def initialize(params: InitializeParams): Try[Boolean] = {
     val chord2ch = new Chord2ch()
     chord2ch.init(TnodeID.newNodeId)

@@ -23,5 +23,5 @@ abstract class DHT {
 }
 
 object DHT {
-  def default: DHT = DHTChord2ch
+  def default: DHT = DHTOverlayWeaver
 }
