@@ -1,2 +1,2 @@
-@(thread: List[ThreadHeader])@for(a <- thread){@(a.since).dat<>@(a.title) (1)
+@(thread: Seq[ThreadHeader])@for(a <- thread){@(a.since).dat<>@(a.title) (1)
 }

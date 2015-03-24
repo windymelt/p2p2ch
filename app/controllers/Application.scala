@@ -5,6 +5,7 @@ package controllers
 
 import controllers.threadwriting.{ ThreadWriter, ThreadWritingFormExtractor }
 import controllers.threadbuilding.{ ThreadBuilder, ThreadBuildingFormExtractor }
+import controllers.Utility._BR_
 import play.api._
 import play.api.mvc._
 import play.api.data._
@@ -33,7 +34,9 @@ object Application extends Controller {
   def showBBSIndex = Action { Ok(views.html.bbsindex("test")).as(HTML) }
   def showBBSMenu = Action { Ok(views.html.bbsmenu()).as(HTML) }
   def showBBSTable = Action { Ok(views.html.bbstable()).as(HTML) }
-  def showSubject = Action { Ok(Subject.generateSubject(chord2ch).getBytes("shift_jis")).as("text/plain") }
+  def showSubject = Action {
+    Ok(("0.dat<>P2P2chの情報 (1)" + _BR_ + Subject.generateSubject(chord2ch)).getBytes("shift_jis")).as("text/plain")
+  }
   def showInformation = Action { Ok(Information.getInformation.getBytes("shift_jis")).as("text/plain") }
   def showStatusImage = Action { Ok(StatusGraph.getStatusImage(chord2ch.getStatus)).as("image/png").withHeaders("Cache-Control" -> "no-cache") }
   def showStatusImageWithRefresh(interval: Int = 30) = Action { Ok(views.html.statusImageWithRefresh(interval)).as(HTML) }

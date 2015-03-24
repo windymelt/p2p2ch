@@ -12,4 +12,5 @@ abstract class Digest {
 
 object Digest {
   def default = SHA1Digest
+  def base64[A <: Array[Byte]](collection: A): String = Base64.encodeBase64String(collection.toArray)
 }
