@@ -18,6 +18,8 @@ object Application extends Controller {
   type NewThreadResult = (Symbol, Array[Byte], Long)
   type NewResponseResult = (Symbol, Array[Byte], Array[Byte], Long)
 
+  println(Utility.logo) // おあそび
+
   implicit val myCustomCharset = Codec.javaSupported("Shift_JIS")
   DHT.default.initialize("")
 
