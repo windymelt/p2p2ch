@@ -2,9 +2,9 @@ package controllers.threadwriting
 
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.mvc.{ AnyContent, Request }
+import play.api.mvc.{ Request }
 
-class ThreadWritingFormExtractor(implicit request: Request[AnyContent]) {
+class ThreadWritingFormExtractor(implicit request: Request[Map[String, Seq[String]]]) {
   def extract: WriteRequestR = {
     val WriteRequestForm = Form(mapping(
       "bbs" -> text,

@@ -53,7 +53,8 @@ object Application extends Controller {
     new String(str.getBytes("Shift-JIS"), "utf-8")
   }
 
-  def writeThread = Action { implicit request ⇒
+  def writeThread = Action(parse.tolerantText) { request ⇒
+    implicit val newRequest = PercentEncoding.extractSJISRequest(request)
     Logger.info(s"request encoding is: ${request.charset}")
 
     val subjectForm = Form("subject" -> text) // スレ建て時にはsubjectに値が入っている
