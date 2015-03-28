@@ -49,6 +49,7 @@ object DHTOverlayWeaver extends controllers.dht.DHT {
     case Some(d) ⇒
       val result = d.put(ID.getID(key.toArray, ID_SIZE), value.toArray)
       Future(key.right)
+    case None => Future(DHTPutUnknownError.left)
   }
   def join(joinTo: JoinParam): Future[Boolean] = dht() match {
     case Some(d) ⇒
