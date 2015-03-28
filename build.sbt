@@ -32,6 +32,7 @@ libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-typelevel" % "7.1.1",
   "org.scalaz" %% "scalaz-scalacheck-binding" % "7.1.1" % "test",
   "org.apache.httpcomponents" % "httpclient" % "4.4",
+  "com.psyonik" %% "psyonik-upnp" % "0.0.1-SNAPSHOT",
   jdbc,
   anorm
 )
