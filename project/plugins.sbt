@@ -7,7 +7,7 @@ resolvers += "bintray-typesafe-repo" at "https://dl.bintray.com/typesafe/maven-r
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.1")
 
-addSbtPlugin("org.ensime" % "ensime-sbt" % "0.1.5")
+addSbtPlugin("org.ensime" % "ensime-sbt" % "0.1.6")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-scalariform" % "1.3.0")
 
