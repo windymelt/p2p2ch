@@ -1,6 +1,12 @@
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+
 language: scala
+
 scala:
    - 2.10.2
+
 branches:
    only:
        - develop

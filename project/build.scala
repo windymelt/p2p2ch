@@ -8,7 +8,7 @@ import org.scalastyle.sbt.ScalastylePlugin
 object P2PScalaProto extends Build {
 
   lazy val P2PScalaProto =
-    ProjectRef(new URI("https://github.com/Hiroyuki-Nagata/p2pScalaProto.git"), "P2PScalaProto")
+    ProjectRef(new URI("https://github.com/windymelt/p2pScalaProto.git"), "P2PScalaProto")
 
   val Organization = "momijikawa"
   val Name = "P2P2ch"
@@ -21,7 +21,11 @@ object P2PScalaProto extends Build {
     "com.typesafe.akka" %% "akka-remote" % "2.2.3",
     "com.typesafe.akka" %% "akka-agent" % "2.2.3",
     jdbc,
-    anorm
+    anorm,
+    cache % "test",
+    "net.sourceforge.htmlunit" % "htmlunit" % "2.14" % "test",
+    "org.apache.httpcomponents" % "httpclient" % "4.3.1" % "test",
+    "org.apache.httpcomponents" % "httpcore" % "4.3.1" % "test"
   )
  
   lazy val projectSettings = Seq(
