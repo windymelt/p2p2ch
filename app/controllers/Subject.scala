@@ -36,16 +36,18 @@ object Subject {
 
     val tokenize: (Stream[Byte]) => Thread = thr => (new String(thr.toArray)).split( """<>""") |> ((s: Array[String]) => Thread(s(0), s(1).toLong, s(2), s(3), s(4)))
 
-    val future_list_opt_mapper: (Stream[Byte] => Thread) => Future[List[Option[Stream[Byte]]]] => List[Thread] =
+    val future_list_opt_mapper: 
+        (Stream[Byte] => Thread) => Future[List[Option[Stream[Byte]]]] => List[Thread] =
       f => flo =>
         Await.result(flo map (lis => lis.map(opt => opt map f).filterNot(_.isEmpty).map(_.get)), 100 seconds)
 
     val genBody: (List[Thread]) => String = t => views.html.subject(t).body
 
-    val body: String = threads |> (threadvalsF >>> (tokenize |> future_list_opt_mapper) >>> genBody)
+    val body: String = threads |> (threadvalsF >>> (tokenize |> future_list_opt_mapper ) >>> genBody)
 
     play.Logger.debug(s"subject.txt has been generated.(${threads.size})")
+    play.Logger.debug(s"body is like below: \n${body}")
 
-    "0.dat<>P2P2chの情報 (1)" + _BR_ + body
+    "0.dat<>P2P2chの情報 (1) <br>" + body
   }
 }

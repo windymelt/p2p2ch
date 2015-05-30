@@ -8,6 +8,7 @@ GET     /                           controllers.Application.index
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 GET     /bbsmenu.html               controllers.Application.bbsmenu
+GET     /index.html                 controllers.Application.bbstable
 GET     /bbstable.html              controllers.Application.bbstable
 GET     /bbs/                       controllers.Application.bbsindex
 GET     /bbs/subject.txt            controllers.Application.subject

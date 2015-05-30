@@ -3,6 +3,7 @@
  */
 package controllers
 
+import java.util.ArrayList
 import play.api._
 import play.api.mvc._
 import play.api.data._
@@ -16,6 +17,7 @@ import Utility._BR_
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.Promise
 import play.api.libs.Comet
+import scala.util.matching.Regex
 
 object Application extends Controller {
   type NewThreadResult = (Symbol, Array[Byte], Long)
@@ -29,7 +31,6 @@ object Application extends Controller {
   val chord2ch = new Chord2ch
   chord2ch.init(TnodeID.newNodeId)
 
-  //println("controller!!!!!!!!!!!!!!!!!!!!!")
   def stopping() = {
     chord2ch.close()
   }
@@ -47,8 +48,25 @@ object Application extends Controller {
       "<A HREF=/bbs/>P2P2ch</A><br>").as(HTML)
   }
 
+  case class ThreadList(hash: String, title: String, response: String)
+
   def bbstable = Action {
-    Ok("【<B>P2P</B>】<A HREF=/bbs/>P2P2ch</A>").as(HTML)
+
+    val subject: String = Subject.generateSubject(chord2ch)
+    val RegexThread: Regex = """([0-9]*).dat<>(.+)\(([0-9]*)\)""".r
+    var threadList: List[ThreadList] = List()
+
+    subject.split("<br>").foreach (
+      e => RegexThread.findAllIn(e).matchData.foreach { m =>
+
+        val hash: String = m.group(1).replaceAll(".dat", "")
+        val title: String = m.group(2)
+        val response: String = m.group(3)
+        threadList = threadList :+ ThreadList(hash, title, response)
+      }
+    )
+
+    Ok(views.html.bbsTable(threadList)).as(HTML)
   }
 
   def subject = Action {
@@ -133,22 +151,30 @@ object Application extends Controller {
   case class WriteRequestR(bbs: String, key: Long, time: String, submit: String, FROM: String, mail: String, MESSAGE: String)
 
   def writeThread = Action {
-    implicit request =>
-      Logger.info(s"request encoding is: ${request.charset}")
 
+    implicit request =>
       val subjectForm = Form("subject" -> text)
+
       subjectForm.bindFromRequest().value match {
         case Some(_) =>
           val WriteRequestForm = Form(mapping(
-            "bbs" -> text,
-            "time" -> text,
-            "submit" -> text,
-            "FROM" -> text,
-            "mail" -> text,
+            "bbs"     -> text,
+            "time"    -> text,
+            "submit"  -> text,
+            "FROM"    -> text,
+            "mail"    -> text,
             "MESSAGE" -> text,
             "subject" -> text)(WriteRequestT.apply)(WriteRequestT.unapply))
           val params = WriteRequestForm.bindFromRequest().get
-          //val subj = request.body.asFormUrlEncoded.get.apply("subject")
+
+          Logger.debug(s"Request : \n"                   +
+                       s"bbs     : ${params.bbs}\n"     +
+                       s"time    : ${params.time}\n"    +
+                       s"FROM    : ${params.FROM}\n"    +
+                       s"mail    : ${params.mail}\n"    +
+                       s"MESSAGE : ${params.MESSAGE}\n" +
+                       s"subject : ${params.subject}")
+
           buildThread(/*strMalSJIS2strU(*/ params /*params.subject*/) //)
 
         case None =>
