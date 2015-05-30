@@ -11,6 +11,8 @@ project/plugins/project/
 
 # Scala-IDE specific
 .scala_dependencies
+.ensime
+.ensime_lucene
 
 logs
 project/project
@@ -25,3 +27,6 @@ tmp
 /.project
 /RUNNING_PID
 /.settings
+
+# p2p2ch
+*.db

@@ -1,0 +1,22 @@
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+
+language: scala
+
+scala:
+   - 2.10.2
+
+branches:
+   only:
+       - develop
+jdk:
+   - oraclejdk7
+   - openjdk6
+
+notifications:
+  email: true
+
+script:
+- sbt ++$TRAVIS_SCALA_VERSION -Dsbt.log.noformat=true compile
+- sbt ++$TRAVIS_SCALA_VERSION -Dsbt.log.noformat=true test
