@@ -10,8 +10,8 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 GET     /bbsmenu.html               controllers.Application.showBBSMenu
 GET     /bbstable.html              controllers.Application.showBBSTable
 GET     /bbs/                       controllers.Application.showBBSIndex
-GET     /bbs/subject.txt                controllers.Application.showSubject
-GET     /bbs/dat/0.dat         controllers.Application.showInformation
+GET     /bbs/subject.txt            controllers.Application.showSubject
+GET     /bbs/dat/0.dat              controllers.Application.showInformation
 GET     /bbs/dat/:dat               controllers.Application.showThread(dat: String)
 GET     /bbs/SETTING.TXT            controllers.Assets.at(path="/public", file="SETTING.TXT")
 POST    /test/bbs.cgi               controllers.Application.writeThread
