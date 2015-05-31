@@ -1,7 +1,9 @@
 package controllers
 
-import momijikawa.p2pscalaproto.ChordState
+import controllers.upnp.UPnP
 import controllers.dht.DHT
+import controllers.upnp.ExternalIP
+import scala.concurrent.duration._
 
 object Information {
 
@@ -45,12 +47,13 @@ object Information {
     message.nonEmpty match {
       case true ⇒
         message.split(_BR_).toList match {
-          case Help()          ⇒ Help.work
-          case Reference()     ⇒ Reference.work
-          case Join(reference) ⇒ Join.work(reference)
-          case Status()        ⇒ Status.work
-          case Upload(path)    ⇒ Upload.work(path)
-          case _               ⇒ "そんなコマンド知らん"
+          case Help()            ⇒ Help.work
+          case Reference()       ⇒ Reference.work
+          case Join(reference)   ⇒ Join.work(reference)
+          case Status()          ⇒ Status.work
+          case Upload(path)      ⇒ Upload.work(path)
+          case ExternalAddress() ⇒ ExternalAddress.work
+          case _                 ⇒ "そんなコマンド知らん"
         }
       case false ⇒ "空白は困ります"
     }
@@ -132,5 +135,18 @@ object Upload {
 
   def work(path_to_file: String): String = {
     "まだ実装されてない"
+  }
+}
+
+object ExternalAddress {
+  def unapply(x: Any): Boolean = {
+    x.isInstanceOf[List[String]] && (x.asInstanceOf[List[String]] match {
+      case "extnaddr" :: Nil ⇒ true
+      case _                 ⇒ false
+    })
+  }
+
+  def work: String = {
+    UPnP.default.externalAddress.orElse(ExternalIP.getExternalIPAddress())getOrElse("N/A")
   }
 }

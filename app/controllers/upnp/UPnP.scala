@@ -9,10 +9,10 @@ abstract class UPnP(val external_port: Int,
                     val limit: FiniteDuration) {
   def open(): Boolean
   def close(): Boolean
-  def externalAddress: String
 }
 
 object UPnP {
   def default(external_port: Int, local_port: Int, protocol: String, description: String, limit: FiniteDuration): UPnP =
     new UPnPPsyonik(external_port, local_port, protocol, description, limit)
+  def default = UPnPPsyonik
 }
