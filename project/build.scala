@@ -24,8 +24,8 @@ object P2PScalaProto extends Build {
     anorm,
     cache % "test",
     "net.sourceforge.htmlunit" % "htmlunit" % "2.14" % "test",
-    "org.apache.httpcomponents" % "httpclient" % "4.3.1" % "test",
-    "org.apache.httpcomponents" % "httpcore" % "4.3.1" % "test"
+    "org.apache.httpcomponents" % "httpclient" % "4.4",
+    "org.apache.httpcomponents" % "httpcore" % "4.4" % "test"
   )
  
   lazy val projectSettings = Seq(

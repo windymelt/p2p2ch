@@ -150,48 +150,49 @@ object Application extends Controller {
 
   case class WriteRequestR(bbs: String, key: Long, time: String, submit: String, FROM: String, mail: String, MESSAGE: String)
 
-  def writeThread = Action {
+  def writeThread = Action(parse.tolerantText) { request =>
 
-    implicit request =>
-      val subjectForm = Form("subject" -> text)
+    implicit val newRequest = PercentEncoding.extractSJISRequest(request)
 
-      subjectForm.bindFromRequest().value match {
-        case Some(_) =>
-          val WriteRequestForm = Form(mapping(
-            "bbs"     -> text,
-            "time"    -> text,
-            "submit"  -> text,
-            "FROM"    -> text,
-            "mail"    -> text,
-            "MESSAGE" -> text,
-            "subject" -> text)(WriteRequestT.apply)(WriteRequestT.unapply))
-          val params = WriteRequestForm.bindFromRequest().get
+    val subjectForm = Form("subject" -> text)
 
-          Logger.debug(s"Request : \n"                   +
-                       s"bbs     : ${params.bbs}\n"     +
-                       s"time    : ${params.time}\n"    +
-                       s"FROM    : ${params.FROM}\n"    +
-                       s"mail    : ${params.mail}\n"    +
-                       s"MESSAGE : ${params.MESSAGE}\n" +
-                       s"subject : ${params.subject}")
+    subjectForm.bindFromRequest().value match {
+      case Some(_) =>
+        val WriteRequestForm = Form(mapping(
+          "bbs"     -> text,
+          "time"    -> text,
+          "submit"  -> text,
+          "FROM"    -> text,
+          "mail"    -> text,
+          "MESSAGE" -> text,
+          "subject" -> text)(WriteRequestT.apply)(WriteRequestT.unapply))
+        val params = WriteRequestForm.bindFromRequest().get
 
-          buildThread(/*strMalSJIS2strU(*/ params /*params.subject*/) //)
+        Logger.debug(s"Request : \n"                   +
+          s"bbs     : ${params.bbs}\n"     +
+          s"time    : ${params.time}\n"    +
+          s"FROM    : ${params.FROM}\n"    +
+          s"mail    : ${params.mail}\n"    +
+          s"MESSAGE : ${params.MESSAGE}\n" +
+          s"subject : ${params.subject}")
 
-        case None =>
-          val WriteRequestForm = Form(mapping(
-            "bbs" -> text,
-            "key" -> longNumber,
-            "time" -> text,
-            "submit" -> text,
-            "FROM" -> text,
-            "mail" -> text,
-            "MESSAGE" -> text)(WriteRequestR.apply)(WriteRequestR.unapply))
-          val params = WriteRequestForm.bindFromRequest().get
-          params.key match {
-            case 0 => config_information(params.FROM, params.mail, params.MESSAGE)
-            case _ => writeThreadMain(params)
-          }
-      }
+        buildThread(/*strMalSJIS2strU(*/ params /*params.subject*/) //)
+
+      case None =>
+        val WriteRequestForm = Form(mapping(
+          "bbs" -> text,
+          "key" -> longNumber,
+          "time" -> text,
+          "submit" -> text,
+          "FROM" -> text,
+          "mail" -> text,
+          "MESSAGE" -> text)(WriteRequestR.apply)(WriteRequestR.unapply))
+        val params = WriteRequestForm.bindFromRequest().get
+        params.key match {
+          case 0 => config_information(params.FROM, params.mail, params.MESSAGE)
+          case _ => writeThreadMain(params)
+        }
+    }
   }
 
   private def writeThreadMain(params: WriteRequestR) = {
