@@ -52,7 +52,7 @@ object Application extends Controller {
 
   def bbstable = Action {
 
-    val subject: String = Subject.generateSubject(chord2ch)
+    val subject: String = Subject.generateSubject(chord2ch, true)
     val RegexThread: Regex = """([0-9]*).dat<>(.+)\(([0-9]*)\)""".r
     var threadList: List[ThreadList] = List()
 

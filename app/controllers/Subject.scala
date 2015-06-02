@@ -12,7 +12,7 @@ import Utility._BR_
 
 object Subject {
 
-  def generateSubject(chord2ch: => Chord2ch): String = {
+  def generateSubject(chord2ch: => Chord2ch, withHtmlTag: Boolean = false): String = {
     // DBからキャッシュを読んでDHTから取り出して文字データを再構成してThread型に変換してsubject形式にする
     import scala.concurrent.ExecutionContext.Implicits.global
     import play.api.libs.concurrent.Akka
@@ -46,8 +46,16 @@ object Subject {
     val body: String = threads |> (threadvalsF >>> (tokenize |> future_list_opt_mapper ) >>> genBody)
 
     play.Logger.debug(s"subject.txt has been generated.(${threads.size})")
-    play.Logger.debug(s"body is like below: \n${body}")
 
-    "0.dat<>P2P2chの情報 (1) <br>" + body
+    def useHtmlTag(withHtmlTag: Boolean): String = {
+      if (withHtmlTag) "<br>" else ""
+    }
+
+    if (withHtmlTag) {
+      val plainText = body.replaceAll(" <br>", "")
+      "0.dat<>P2P2chの情報 (1) ${useHtmlTag(withHtmlTag)}" + plainText
+    }
+
+    "0.dat<>P2P2chの情報 (1) ${useHtmlTag(withHtmlTag)}" + body
   }
 }
