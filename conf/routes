@@ -7,8 +7,8 @@ GET     /                           controllers.Application.index
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
-GET     /bbsmenu.html               controllers.Application.bbsmenu
-GET     /bbstable.html              controllers.Application.bbstable
+
+# something like API
 GET     /bbs/                       controllers.Application.bbsindex
 GET     /bbs/subject.txt            controllers.Application.subject
 GET     /bbs/dat/0.dat              controllers.Application.information
@@ -20,3 +20,8 @@ GET     /statusgraph/refr           controllers.Application.showStatusImageWithR
 GET     /statusgraph/refr           controllers.Application.showStatusImageWithRefresh(interval: Int)
 GET     /statusgraph/realtime       controllers.Application.statusGraphRealtime
 GET     /statusgraph/comet          controllers.Application.statusGraphComet
+
+# with UI
+GET     /bbsmenu.html               controllers.Application.bbsmenu
+GET     /index.html                 controllers.Application.bbstable
+GET     /bbstable.html              controllers.Application.bbstable
