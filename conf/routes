@@ -15,3 +15,14 @@ GET     /bbs/dat/0.dat              controllers.Application.showInformation
 GET     /bbs/dat/:dat               controllers.Application.showThread(dat: String)
 GET     /bbs/SETTING.TXT            controllers.Assets.at(path="/public", file="SETTING.TXT")
 POST    /test/bbs.cgi               controllers.Application.writeThread
+GET     /statusgraph/               controllers.Application.showStatusImage
+GET     /statusgraph/refr           controllers.Application.showStatusImageWithRefresh(interval: Int = 30)
+GET     /statusgraph/refr           controllers.Application.showStatusImageWithRefresh(interval: Int)
+GET     /statusgraph/realtime       controllers.Application.statusGraphRealtime
+GET     /statusgraph/comet          controllers.Application.statusGraphComet
+
+# with UI
+GET     /bbsmenu.html               controllers.Application.bbsmenu
+GET     /                           controllers.Application.bbstable
+GET     /index.html                 controllers.Application.bbstable
+GET     /bbstable.html              controllers.Application.bbstable
