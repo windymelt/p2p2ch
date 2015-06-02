@@ -71,18 +71,12 @@ class ApplicationSpec extends Specification {
       }
     }
 
+    "GET /index.html can return threadlist with WEBUI" in {
+      running(FakeApplication()) {
+        val home = route(FakeRequest(GET, "/index.html")).get
 
-
-
-
-
-
-
-
-
-
-
-
-
+        status(home) must equalTo(OK)
+      }
+    }
   }
 }

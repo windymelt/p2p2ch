@@ -47,15 +47,11 @@ object Subject {
 
     play.Logger.debug(s"subject.txt has been generated.(${threads.size})")
 
-    def useHtmlTag(withHtmlTag: Boolean): String = {
-      if (withHtmlTag) "<br>" else ""
-    }
-
-    if (withHtmlTag) {
+    if (!withHtmlTag) {
       val plainText = body.replaceAll(" <br>", "")
-      "0.dat<>P2P2chの情報 (1) ${useHtmlTag(withHtmlTag)}" + plainText
+      "0.dat<>P2P2chの情報 (1) " + plainText
+    } else {
+      "0.dat<>P2P2chの情報 (1) <br>" + body
     }
-
-    "0.dat<>P2P2chの情報 (1) ${useHtmlTag(withHtmlTag)}" + body
   }
 }
