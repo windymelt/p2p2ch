@@ -23,5 +23,6 @@ GET     /statusgraph/comet          controllers.Application.statusGraphComet
 
 # with UI
 GET     /bbsmenu.html               controllers.Application.bbsmenu
+GET     /                           controllers.Application.bbstable
 GET     /index.html                 controllers.Application.bbstable
 GET     /bbstable.html              controllers.Application.bbstable
