@@ -8,8 +8,9 @@ scala:
    - 2.10.2
 
 branches:
-   only:
-       - develop
+   - master
+   - develop
+
 jdk:
    - oraclejdk7
    - openjdk6
