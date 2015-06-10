@@ -5,7 +5,7 @@ cache:
 language: scala
 
 scala:
-   - 2.10.2
+   - 2.10.4
 
 branches:
    - master
@@ -19,5 +19,6 @@ notifications:
   email: true
 
 script:
+- rm -rf ~/.sbt/0.13/staging/
 - sbt ++$TRAVIS_SCALA_VERSION -Dsbt.log.noformat=true compile
 - sbt ++$TRAVIS_SCALA_VERSION -Dsbt.log.noformat=true test

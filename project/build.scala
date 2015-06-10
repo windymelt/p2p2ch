@@ -5,16 +5,16 @@ import java.net.URI
 import com.typesafe.sbt.SbtScalariform.scalariformSettings
 import org.scalastyle.sbt.ScalastylePlugin
 
-object P2PScalaProto extends Build {
+object P2P2ch extends Build {
 
   lazy val P2PScalaProto =
-    ProjectRef(new URI("https://github.com/Hiroyuki-Nagata/p2pScalaProto.git"), "P2PScalaProto")
+    ProjectRef(new URI("https://github.com/windymelt/p2pScalaProto.git"), "P2PScalaProto")
 
   val Organization  = "momijikawa"
   val Name          = "P2P2ch"
   val Version       = "1.10.0" 
   val ScalaVersion  = "2.10.4"
-  val ScalazVersion = "7.0.0"
+  val ScalazVersion = "7.1.1"
   val AkkaVersion   = "2.2.3"
 
   // << groupId >> %%  << artifactId >> % << version >>
