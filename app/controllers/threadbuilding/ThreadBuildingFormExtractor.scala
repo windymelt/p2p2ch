@@ -13,7 +13,8 @@ class ThreadBuildingFormExtractor(implicit request: Request[AnyContent]) {
       "FROM" -> text,
       "mail" -> text,
       "MESSAGE" -> text,
-      "subject" -> text)(WriteRequestT.apply)(WriteRequestT.unapply))
+      "subject" -> text
+    )(WriteRequestT.apply)(WriteRequestT.unapply))
     BuildRequestForm.bindFromRequest().get
   }
 }

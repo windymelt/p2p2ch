@@ -18,8 +18,10 @@ object StatusGraph {
   def draw(action: (Graphics2D) ⇒ Unit) = {
     val bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB)
     val gp = bi.createGraphics()
-    gp.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-      RenderingHints.VALUE_ANTIALIAS_ON);
+    gp.setRenderingHint(
+      RenderingHints.KEY_ANTIALIASING,
+      RenderingHints.VALUE_ANTIALIAS_ON
+    );
     gp.setFont(new Font("Courier", Font.BOLD, 12))
 
     action(gp)

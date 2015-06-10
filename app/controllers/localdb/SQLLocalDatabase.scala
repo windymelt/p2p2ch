@@ -10,7 +10,7 @@ object SQLLocalDatabase extends LocalDatabase {
       implicit c ⇒
         SQL("SELECT THREAD FROM THREAD_CACHE WHERE MODIFIED = {modified}").on("modified" -> datNumber)().map {
           case Row(thread: Array[Byte]) ⇒ Some(thread)
-          case _                        ⇒ None
+          case _ ⇒ None
         }.filterNot(_.isEmpty).toSeq
     }
     threadKeyList(0)
@@ -38,7 +38,8 @@ object SQLLocalDatabase extends LocalDatabase {
         SQL("INSERT INTO RESPONSE_CACHE(THREAD, RESPONSE, MODIFIED) VALUES({thread}, {response}, {modified})").on(
           'thread -> threadKey,
           'response -> responseKey,
-          'modified -> time).executeInsert()
+          'modified -> time
+        ).executeInsert()
     }
   }
   def insertThread(threadKey: Array[Byte], time: Long): Unit = {
@@ -46,7 +47,8 @@ object SQLLocalDatabase extends LocalDatabase {
       implicit c ⇒
         SQL("INSERT INTO THREAD_CACHE(THREAD, MODIFIED) VALUES({thread}, {modified})").on(
           'thread -> threadKey,
-          'modified -> time).executeInsert()
+          'modified -> time
+        ).executeInsert()
     }
   }
   def getResponsesAfter(sinceUNIXTime: Long): List[(Symbol, Array[Byte], Array[Byte], Long)] = {

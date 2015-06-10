@@ -23,7 +23,7 @@ object DHTChord2ch extends DHT {
       case Some(chord2ch) ⇒
         chord2ch.get(key) flatMap {
           case Some(v) ⇒ Future(v.right)
-          case None    ⇒ Future(DHTNotFound.left)
+          case None ⇒ Future(DHTNotFound.left)
         }
       case None ⇒ Future(DHTGetNotInitialized.left)
     }

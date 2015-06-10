@@ -13,7 +13,8 @@ class ThreadWritingFormExtractor(implicit request: Request[AnyContent]) {
       "submit" -> text,
       "FROM" -> text,
       "mail" -> text,
-      "MESSAGE" -> text)(WriteRequestR.apply)(WriteRequestR.unapply))
+      "MESSAGE" -> text
+    )(WriteRequestR.apply)(WriteRequestR.unapply))
     WriteRequestForm.bindFromRequest().get
   }
 }

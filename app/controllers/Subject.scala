@@ -20,7 +20,7 @@ object Subject {
     }
     val listOfheaders = threadBytes flatMap {
       case Some(stream) ⇒ ThreadHeader.fromByteArray(stream.toArray).toList
-      case None         ⇒ Nil
+      case None ⇒ Nil
     }
     val headersObject = new ListOfThreadHeaders(listOfheaders)
     val subjectString = headersObject.generateString

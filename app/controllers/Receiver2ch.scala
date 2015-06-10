@@ -13,10 +13,10 @@ class Receiver2ch(stateAgt: Agent[ChordState]) extends MessageReceiver(stateAgt:
   val fetcher = context.actorOf(akka.actor.Props[DataFetchingBeacon], "FetchingBeacon")
 
   override def receiveExtension(x: Any, sender: ActorRef)(implicit context: ActorContext) = x match {
-    case ('NewResSince, time: Long)    ⇒ sender ! LocalDatabase.default.getResponsesAfter(time)
+    case ('NewResSince, time: Long) ⇒ sender ! LocalDatabase.default.getResponsesAfter(time)
     case ('NewThreadSince, time: Long) ⇒ sender ! LocalDatabase.default.getThreadsAfter(time)
-    case PullNew                       ⇒ pullNewData
-    case m                             ⇒ log.warning(s"unknown message: $m")
+    case PullNew ⇒ pullNewData
+    case m ⇒ log.warning(s"unknown message: $m")
   }
 
   override def preStart = {

@@ -69,7 +69,7 @@ object Application extends Controller {
       val params = new ThreadBuildingFormExtractor().extract
       val buildResult = new ThreadBuilder().buildThread(params.subject, params.FROM, params.mail, params.MESSAGE)
       buildResult match {
-        case \/-(_)     ⇒ Ok(views.html.threadPostSuccessful()).as(HTML)
+        case \/-(_) ⇒ Ok(views.html.threadPostSuccessful()).as(HTML)
         case -\/(error) ⇒ Ok(views.html.threadBuildFailed(error.message)).as(HTML)
       }
     } else {
@@ -81,7 +81,7 @@ object Application extends Controller {
         case threadDatNumber ⇒
           val writeResult = new ThreadWriter().writeThread(threadDatNumber, params.FROM, params.mail, params.MESSAGE)
           writeResult match {
-            case \/-(_)     ⇒ Ok(views.html.threadPostSuccessful()).as(HTML)
+            case \/-(_) ⇒ Ok(views.html.threadPostSuccessful()).as(HTML)
             case -\/(error) ⇒ Ok(views.html.threadWriteFailed(error.message)).as(HTML)
           }
       }
