@@ -1,7 +1,8 @@
 package controllers
 
-import momijikawa.p2pscalaproto.{ChordState, nodeID, MessageReceiver}
-import akka.actor.{ActorContext, ActorRef}
+import controllers.localdb.LocalDatabase
+import momijikawa.p2pscalaproto.{ ChordState, nodeID, MessageReceiver }
+import akka.actor.{ ActorContext, ActorRef }
 import akka.agent.Agent
 
 class Receiver2ch(stateAgt: Agent[ChordState]) extends MessageReceiver(stateAgt: Agent[ChordState]) {
@@ -12,17 +13,17 @@ class Receiver2ch(stateAgt: Agent[ChordState]) extends MessageReceiver(stateAgt:
   val fetcher = context.actorOf(akka.actor.Props[DataFetchingBeacon], "FetchingBeacon")
 
   override def receiveExtension(x: Any, sender: ActorRef)(implicit context: ActorContext) = x match {
-    case ('NewResSince, time: Long) => sender ! Application.searchResSince(time)
-    case ('NewThreadSince, time: Long) => sender ! Application.searchThreadSince(time)
-    case PullNew => pullNewData
-    case m => log.warning(s"unknown message: $m")
+    case ('NewResSince, time: Long) ⇒ sender ! LocalDatabase.default.getResponsesAfter(time)
+    case ('NewThreadSince, time: Long) ⇒ sender ! LocalDatabase.default.getThreadsAfter(time)
+    case PullNew ⇒ pullNewData
+    case m ⇒ log.warning(s"unknown message: $m")
   }
 
   override def preStart = {
     import context.dispatcher
     import scala.concurrent.duration._
     context.system.scheduler.schedule(30 seconds, 1 minutes, self, PullNew)
-    fetcher !('start, self) // start beacon
+    fetcher ! ('start, self) // start beacon
   }
 
   override def postStop = {
@@ -39,15 +40,15 @@ class Receiver2ch(stateAgt: Agent[ChordState]) extends MessageReceiver(stateAgt:
     val randomly = new util.Random()
     val randomOne = randomly.shuffle(this.stateAgt().succList.nodes.list ++ this.stateAgt().fingerList.nodes.list).head
     val thatActor = randomOne.actorref
-    val newResRslt = (a: ActorRef) => (sinceWhen: Long) => (a ?('NewResSince, sinceWhen)).mapTo[List[NewResponseResult]]
-    val newThreadRslt = (a: ActorRef) => (sinceWhen: Long) => (a ?('NewThreadSince, sinceWhen)).mapTo[List[NewThreadResult]]
+    val newResRslt = (a: ActorRef) ⇒ (sinceWhen: Long) ⇒ (a ? ('NewResSince, sinceWhen)).mapTo[List[NewResponseResult]]
+    val newThreadRslt = (a: ActorRef) ⇒ (sinceWhen: Long) ⇒ (a ? ('NewThreadSince, sinceWhen)).mapTo[List[NewThreadResult]]
     val composedFuture = for {
-      snts <- newThreadRslt(thatActor)(lastload)
-      snrs <- newResRslt(thatActor)(lastload)
-    } yield (snrs, snts)
+      newThreads ← newThreadRslt(thatActor)(lastload)
+      newResponses ← newResRslt(thatActor)(lastload)
+    } yield (newThreads, newResponses)
     composedFuture.onSuccess {
-      case (snrs, snts) =>
-        Application.updateCache(snrs, snts)
+      case (threads, responses) ⇒
+        CacheUpdater.updateLocalCache(threads, responses)
         lastload = (System.currentTimeMillis() / 1000) - 3600 // a hour ago
     }
   }

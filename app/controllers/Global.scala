@@ -1,4 +1,4 @@
-import play.api.{Logger, Application, GlobalSettings}
+import play.api.{ Logger, Application, GlobalSettings }
 
 object Global extends GlobalSettings {
   override def onStart(app: Application) = {
@@ -7,6 +7,6 @@ object Global extends GlobalSettings {
 
   override def onStop(app: Application) = {
     Logger.debug("shutting down application..")
-    controllers.Application.stopping()
+    controllers.Application.shutdownHook()
   }
 }
