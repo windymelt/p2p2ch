@@ -30,14 +30,16 @@ object Application extends Controller {
     chord2ch.close()
   }
 
-  def showIndex = Action { Ok(views.html.bbstable()).as(HTML) }
+  def showIndex = Action { Ok(views.html.bbstable( Subject.generateThreadList(chord2ch) )).as(HTML) }
+  def showBBSTable = Action { Ok(views.html.bbstable( Subject.generateThreadList(chord2ch) )).as(HTML) }
+
   def showBBSIndex = Action { Ok(views.html.bbsindex("test")).as(HTML) }
   def showBBSMenu = Action { Ok(views.html.bbsmenu()).as(HTML) }
-  def showBBSTable = Action { Ok(views.html.bbstable()).as(HTML) }
 
   def showSubject = Action {
     Ok(("0.dat<>P2P2chの情報 (1)" + _BR_ + Subject.generateSubject(chord2ch)).getBytes("shift_jis")).as("text/plain")
   }
+
   def showInformation = Action { Ok(Information.getInformation.getBytes("shift_jis")).as("text/plain") }
   def showStatusImage = Action { Ok(StatusGraph.getStatusImage(chord2ch.getStatus)).as("image/png").withHeaders("Cache-Control" -> "no-cache") }
   def showStatusImageWithRefresh(interval: Int = 30) = Action { Ok(views.html.statusImageWithRefresh(interval)).as(HTML) }
