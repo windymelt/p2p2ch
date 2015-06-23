@@ -41,26 +41,26 @@ class ApplicationSpec extends Specification {
       }
     }
 
-/**
-    "POST /test/bbs.cgi will succeed to post with ascii strings" in {
-      running(FakeApplication()) {
-
-        val data: Map[String, String] = Map(
-          "bbs"     -> "test",
-          "time"    -> String.valueOf(System.currentTimeMillis / 1000),
-          "submit"  -> "",
-          "FROM"    -> "nanashi",
-          "mail"    -> "nanashi@example.com",
-          "MESSAGE" -> "I am a Chaika",
-          "subject" -> "This is it"
-        )
-
-        val bbs = route(FakeRequest(POST, "/test/bbs.cgi").withFormUrlEncodedBody(data.toSeq: _*)).get
-
-        status(bbs) must equalTo(OK)
-      }
-    }
-*/
+    /**
+     * "POST /test/bbs.cgi will succeed to post with ascii strings" in {
+     * running(FakeApplication()) {
+     *
+     * val data: Map[String, String] = Map(
+     * "bbs"     -> "test",
+     * "time"    -> String.valueOf(System.currentTimeMillis / 1000),
+     * "submit"  -> "",
+     * "FROM"    -> "nanashi",
+     * "mail"    -> "nanashi@example.com",
+     * "MESSAGE" -> "I am a Chaika",
+     * "subject" -> "This is it"
+     * )
+     *
+     * val bbs = route(FakeRequest(POST, "/test/bbs.cgi").withFormUrlEncodedBody(data.toSeq: _*)).get
+     *
+     * status(bbs) must equalTo(OK)
+     * }
+     * }
+     */
 
     "GET /bbs/subject.txt can return subject.txt" in {
       running(FakeApplication()) {

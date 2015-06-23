@@ -1,7 +1,9 @@
 // Comment to get more information during initialization
 logLevel := Level.Warn
 
-resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/releases/"
+resolvers += "Sonatype-releases" at "https://oss.sonatype.org/content/repositories/releases/"
+
+resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.1")
 

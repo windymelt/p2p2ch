@@ -10,7 +10,7 @@ object PercentEncoding {
   def extractSJISRequest(request: Request[String]) = {
     // パーセントエンコードされたStringが格納されているbodyを取得する。
     val body = request.body
-    
+
     // ライブラリ独自のクラスであるNameValuePairのSeqに変換する。
     // URLEncodedUtils.parseはList<NameValuePair>を返すが、
     // scala.collection.JavaConversions._ をimportしているので
@@ -19,13 +19,13 @@ object PercentEncoding {
     // パーセントエンコーディングを想定しているので、
     // ダミーURLを作成してそのクエリという体でパースさせる。
     val parsed: Seq[NameValuePair] = URLEncodedUtils.parse(new URI("http://example.com/?" + body), "Shift_JIS")
-    
+
     // Seq[NameValuePair]をPlayでフォームデータの表現として使用される
     // Map[String, Seq[String]]に変換する。
     // 通常、application/x-www-form-urlencodedで渡ってきたデータは
     // Map[String, Seq[String]]となるが、ここで本来のデータ形式を再現する。
     val newBody = parsed.map { pair ⇒ (pair.getName, Seq(pair.getValue)) }.toMap
-    
+
     // あたかも最初からフォームとしてパースされていたようなリクエストを用意する。
     // bodyだけが変更されており、その他のパラメータはオリジナルのまま。
     // 型もRequest[String]ではなくRequest[Map[String, Seq[String]]]になっている。
