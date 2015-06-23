@@ -46,7 +46,7 @@ object Response {
                     """SELECT RESPONSE """ +
                       """FROM RESPONSE_CACHE WHERE THREAD = {thread} """ +
                       """ORDER BY MODIFIED ASC LIMIT 1 OFFSET {no}"""
-                  ).on('thread -> res.thread, 'no -> decrN)().map {
+                  ).on('thread → res.thread, 'no → decrN)().map {
                       case Row(response: Array[Byte]) ⇒ ">>" + new String(Base64.encodeBase64(response)) + "@"
                       case _                          ⇒ ">>" + m.toString
                     }.toList.headOption.getOrElse(">>" + m.toString)
@@ -76,12 +76,12 @@ object Response {
                   "SELECT THREAD, RESPONSE, MODIFIED " +
                   "FROM RESPONSE_CACHE " +
                   "WHERE THREAD = {thread} ORDER BY MODIFIED ASC" +
-                  ")" /*whr res*/ ).on('thread -> res.thread)().collect {
+                  ")" /*whr res*/ ).on('thread → res.thread)().collect {
                   case n ⇒
                     val nn = n.asMap
                     //play.api.Logger.warn(nn.toString())
                     //play.api.Logger.warn((nn(".NUMBER").asInstanceOf[Int], new String(Base64.encodeBase64(nn("_0.RESPONSE").asInstanceOf[Option[Array[Byte]]].get))) toString())
-                    (nn(".NUMBER").asInstanceOf[Int] + 1) -> new String(Base64.encodeBase64(nn("_0.RESPONSE").asInstanceOf[Option[Array[Byte]]].get))
+                    (nn(".NUMBER").asInstanceOf[Int] + 1) → new String(Base64.encodeBase64(nn("_0.RESPONSE").asInstanceOf[Option[Array[Byte]]].get))
                 }.toList.map {
                   pair ⇒ play.api.Logger.info(pair._2 + " vs. " + new String(Base64.encodeBase64(arr))); pair
                 }.collect {

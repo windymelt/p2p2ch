@@ -27,7 +27,8 @@ class ThreadBuilder {
          |Digest(SHA-1): ${Digest.default.generateBase64DigestFromByteArray(data)}
          |Name: $from
          |Mail: $mail
-""".stripMargin)
+""".stripMargin
+    )
 
     Logger.debug("registering thread data into Chord DHT...")
     val key: Option[Seq[Byte]] = Await.result(DHT.default.put(digest, data.toStream), 30 seconds).toOption

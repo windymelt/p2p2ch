@@ -38,7 +38,8 @@ class ThreadWriter {
               |Mail: $mail
               |MESSAGE: $message
               |Digest(SHA-1): ${Digest.base64(digest)}
-            """.stripMargin)
+            """.stripMargin
+        )
 
         Logger.debug("registering response information into Chord DHT...")
         val dht_keyO = Await.result(DHT.default.put(digest, data.toStream), 30 seconds).toOption

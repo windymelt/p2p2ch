@@ -46,7 +46,7 @@ object Application extends Controller {
       case Some(thread) ⇒
         Ok(viewer.convertThread2HTML(thread).getBytes("shift_jis"))
           .as("text/plain")
-          .withHeaders("Cache-Control" -> "no-cache")
+          .withHeaders("Cache-Control" → "no-cache")
       case None ⇒ Ok("failed to load thread")
     }
   }
@@ -59,7 +59,7 @@ object Application extends Controller {
     implicit val newRequest = PercentEncoding.extractSJISRequest(request)
     Logger.info(s"request encoding is: ${request.charset}")
 
-    val subjectForm = Form("subject" -> text) // スレ建て時にはsubjectに値が入っている
+    val subjectForm = Form("subject" → text) // スレ建て時にはsubjectに値が入っている
     val isBuildingThread = subjectForm.bindFromRequest().value.isDefined
     if (isBuildingThread) {
       val params = new ThreadBuildingFormExtractor().extract

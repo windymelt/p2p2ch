@@ -22,7 +22,8 @@ object DHTOverlayWeaver extends controllers.dht.DHT {
 
   def initialize(params: InitializeParams): Try[Boolean] = {
     val conf: DHTConfiguration = new DHTConfiguration()
-    dht.alter(Some(initializeDHT(applicationID = applicationID,
+    dht.alter(Some(initializeDHT(
+      applicationID = applicationID,
       applicationVersion = applicationVersion,
       config = conf,
       workingDir = None,
@@ -33,7 +34,8 @@ object DHTOverlayWeaver extends controllers.dht.DHT {
       statCollectorAddressAndPort = None,
       selfAddressAndPort = None,
       noUPnP = false,
-      contactHostAndPort = None)))
+      contactHostAndPort = None
+    )))
     Success(true)
   }
   def get(key: Key): Future[\/[DHTGetError, Value]] = dht() match {
@@ -88,7 +90,8 @@ object DHTOverlayWeaver extends controllers.dht.DHT {
     if (noUPnP) config.setDoUPnPNATTraversal(false)
 
     val dht = DHTFactory.getDHT[V](
-      applicationID, applicationVersion, config, selfID | null) // throws Exception
+      applicationID, applicationVersion, config, selfID | null
+    ) // throws Exception
     val sb = new StringBuilder()
     sb.append("DHT configuration:\n")
     sb.append(" hostname:port: ").append(dht.getSelfIDAddressPair.getAddress).append('\n')
@@ -132,6 +135,7 @@ object DHTOverlayWeaver extends controllers.dht.DHT {
       System.out.println(" initial contact: " + contactHostAndPort.get + s" (default port ${config.getContactPort}})")
     }
     System.out.println("A DHT started.")
+    println(dht.getConfiguration.getDoUPnPNATTraversal)
     System.out.flush()
     dht
   }

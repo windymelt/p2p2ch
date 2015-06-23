@@ -2,11 +2,13 @@ package controllers.upnp
 
 import scala.concurrent.duration.FiniteDuration
 
-abstract class UPnP(val external_port: Int,
-                    val local_port: Int,
-                    val protocol: String,
-                    val description: String,
-                    val limit: FiniteDuration) {
+abstract class UPnP(
+  val external_port: Int,
+  val local_port:    Int,
+  val protocol:      String,
+  val description:   String,
+  val limit:         FiniteDuration
+) {
   def open(): Boolean
   def close(): Boolean
 }

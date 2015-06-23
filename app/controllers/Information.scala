@@ -39,7 +39,7 @@ object Information {
     val timestamp = System.currentTimeMillis() / 1000
     DB.withConnection {
       implicit c ⇒
-        SQL("INSERT INTO SETTING_LOG (MESSAGE, MODIFIED) VALUES ({message}, {now})").on("message" -> message, "now" -> timestamp).executeUpdate
+        SQL("INSERT INTO SETTING_LOG (MESSAGE, MODIFIED) VALUES ({message}, {now})").on("message" → message, "now" → timestamp).executeUpdate
     }
   }
 
@@ -147,6 +147,6 @@ object ExternalAddress {
   }
 
   def work: String = {
-    UPnP.default.externalAddress.orElse(ExternalIP.getExternalIPAddress())getOrElse("N/A")
+    UPnP.default.externalAddress.orElse(ExternalIP.getExternalIPAddress()) getOrElse ("N/A")
   }
 }

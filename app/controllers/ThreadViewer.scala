@@ -51,7 +51,8 @@ class ThreadViewer {
   }
   def convertThread2HTML(thread: Thread): String = {
     views.html.thread(List(
-      (thread.header.from, thread.header.mail, Otimestamp2str(Some(thread.header.since)), thread.header.body, thread.header.title)) ++
+      (thread.header.from, thread.header.mail, Otimestamp2str(Some(thread.header.since)), thread.header.body, thread.header.title)
+    ) ++
       thread.responses.responses.map {
         ar ⇒ (ar.name, ar.mail, Otimestamp2str(Some(ar.time)), ar.body, "")
       }.toList).body
