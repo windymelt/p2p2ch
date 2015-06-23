@@ -4,12 +4,9 @@
 
 # Home page
 GET     /                           controllers.Application.showIndex
+GET     /index.html                 controllers.Application.showIndex
 
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
-GET     /bbsmenu.html               controllers.Application.showBBSMenu
-GET     /bbstable.html              controllers.Application.showBBSTable
-GET     /bbs/                       controllers.Application.showBBSIndex
+# Something like a API
 GET     /bbs/subject.txt            controllers.Application.showSubject
 GET     /bbs/dat/0.dat              controllers.Application.showInformation
 GET     /bbs/dat/:dat               controllers.Application.showThread(dat: String)
@@ -21,8 +18,9 @@ GET     /statusgraph/refr           controllers.Application.showStatusImageWithR
 GET     /statusgraph/realtime       controllers.Application.showStatusGraphRealtime
 GET     /statusgraph/comet          controllers.Application.showStatusGraphComet
 
-# with UI
-GET     /bbsmenu.html               controllers.Application.bbsmenu
-GET     /                           controllers.Application.bbstable
-GET     /index.html                 controllers.Application.bbstable
-GET     /bbstable.html              controllers.Application.bbstable
+# Map static resources from the /public folder to the /assets URL path
+# Web UI with HTML tags
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /bbsmenu.html               controllers.Application.showBBSMenu
+GET     /bbstable.html              controllers.Application.showBBSTable
+GET     /bbs/                       controllers.Application.showBBSIndex

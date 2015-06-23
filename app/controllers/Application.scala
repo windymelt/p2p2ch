@@ -27,13 +27,15 @@ object Application extends Controller {
     DHT.default.close()
   }
 
-  def showIndex = Action { Ok(views.html.index("Your new application is ready.")) }
+  def showIndex = Action { Ok(views.html.bbstable(Subject.generateThreadList)).as(HTML) }
+  def showBBSTable = Action { Ok(views.html.bbstable(Subject.generateThreadList)).as(HTML) }
   def showBBSIndex = Action { Ok(views.html.bbsindex("test")).as(HTML) }
   def showBBSMenu = Action { Ok(views.html.bbsmenu()).as(HTML) }
-  def showBBSTable = Action { Ok(views.html.bbstable()).as(HTML) }
+
   def showSubject = Action {
     Ok(("0.dat<>P2P2chの情報 (1)" + _BR_ + Subject.generateSubject).getBytes("shift_jis")).as("text/plain")
   }
+
   def showInformation = Action { Ok(Information.getInformation.getBytes("shift_jis")).as("text/plain") }
 
   def showThread(datFileName: String) = Action {

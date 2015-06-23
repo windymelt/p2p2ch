@@ -22,22 +22,22 @@ class ApplicationSpec extends Specification {
       }
     }
 
-    "contains text \"P2P2ch is (probably) ready.\" if it render the index page" in {
+    "GET / can return threadlist with WEBUI" in {
       running(FakeApplication()) {
         val home = route(FakeRequest(GET, "/")).get
 
         status(home) must equalTo(OK)
         contentType(home) must beSome.which(_ == "text/html")
-        contentAsString(home) must contain("P2P2ch is (probably) ready.")
+        contentAsString(home) must contain("P2P2ch")
       }
     }
 
-    "contains the index page" in {
+    "GET /index.html can return threadlist with WEBUI" in {
       running(FakeApplication()) {
         val home = route(FakeRequest(GET, "/index.html")).get
-
         status(home) must equalTo(OK)
         contentType(home) must beSome.which(_ == "text/html")
+        contentAsString(home) must contain("P2P2ch")
       }
     }
 
@@ -67,14 +67,6 @@ class ApplicationSpec extends Specification {
         val home = route(FakeRequest(GET, "/bbs/subject.txt")).get
 
         println(contentAsString(home))
-        status(home) must equalTo(OK)
-      }
-    }
-
-    "GET /index.html can return threadlist with WEBUI" in {
-      running(FakeApplication()) {
-        val home = route(FakeRequest(GET, "/index.html")).get
-
         status(home) must equalTo(OK)
       }
     }

@@ -49,8 +49,6 @@ object PercentEncoding {
       override def tags: Map[String, String] = request.tags
 
       override def id: Long = request.id
-
-      override def secure: Boolean = request.secure
     }
   }
 }
