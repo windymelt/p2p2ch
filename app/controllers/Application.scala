@@ -6,11 +6,16 @@ package controllers
 import controllers.threadwriting.{ ThreadWriter, ThreadWritingFormExtractor }
 import controllers.threadbuilding.{ ThreadBuilder, ThreadBuildingFormExtractor }
 import controllers.dht.DHT
+import controllers.dht.DHTChord2ch
 import controllers.Utility._BR_
 import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
+import play.api.libs.iteratee.Enumerator
+import play.api.libs.concurrent.Promise
+import play.api.libs.Comet
+import scala.concurrent.duration._
 import scalaz._
 import Scalaz._
 
@@ -37,6 +42,9 @@ object Application extends Controller {
   }
 
   def showInformation = Action { Ok(Information.getInformation.getBytes("shift_jis")).as("text/plain") }
+  def showStatusImage = Action { Ok(StatusGraph.getStatusImage(DHT.default.asInstanceOf[DHTChord2ch.type].getStatus.get)).as("image/png").withHeaders("Cache-Control" -> "no-cache") }
+  def showStatusImageWithRefresh(interval: Int = 30) = Action { Ok(views.html.statusImageWithRefresh(interval)).as(HTML) }
+  def showStatusGraphRealtime = Action { Ok(views.html.statusImageRealtime()).as(HTML).withHeaders("Cache-Control" -> "no-cache") }
 
   def showThread(datFileName: String) = Action {
     val numberPartOfDatFileName = datFileName.substring(0, datFileName.lastIndexOf("."))
@@ -83,6 +91,18 @@ object Application extends Controller {
             case -\/(error) ⇒ Ok(views.html.threadWriteFailed(error.message)).as(HTML)
           }
       }
+    }
+  }
+
+  def showStatusGraphComet = Action {
+    request ⇒
+      val host = request.headers("Host")
+      Ok.chunked(notifier &> Comet(callback = "parent.changed"))
+  }
+  lazy val notifier: Enumerator[String] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    Enumerator.generateM {
+      Promise.timeout(Some(DHT.default.asInstanceOf[DHTChord2ch.type].getStatus.get.toString), 100 milliseconds)
     }
   }
 }

@@ -23,7 +23,7 @@ object DHTChord2ch extends DHT {
       case Some(chord2ch) ⇒
         chord2ch.get(key) flatMap {
           case Some(v) ⇒ Future(v.right)
-          case None    ⇒ Future(DHTNotFound.left)
+          case None ⇒ Future(DHTNotFound.left)
         }
       case None ⇒ Future(DHTGetNotInitialized.left)
     }
@@ -61,5 +61,8 @@ object DHTChord2ch extends DHT {
   }
   def info: Option[Information] = {
     dht() map { _.getStatus.toString }
+  }
+  def getStatus = {
+    dht() map { _.getStatus }
   }
 }
