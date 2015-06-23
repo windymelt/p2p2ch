@@ -18,8 +18,8 @@ POST    /test/bbs.cgi               controllers.Application.writeThread
 GET     /statusgraph/               controllers.Application.showStatusImage
 GET     /statusgraph/refr           controllers.Application.showStatusImageWithRefresh(interval: Int = 30)
 GET     /statusgraph/refr           controllers.Application.showStatusImageWithRefresh(interval: Int)
-GET     /statusgraph/realtime       controllers.Application.statusGraphRealtime
-GET     /statusgraph/comet          controllers.Application.statusGraphComet
+GET     /statusgraph/realtime       controllers.Application.showStatusGraphRealtime
+GET     /statusgraph/comet          controllers.Application.showStatusGraphComet
 
 # with UI
 GET     /bbsmenu.html               controllers.Application.bbsmenu
