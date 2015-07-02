@@ -1,51 +1,56 @@
 package controllers
 
-import play.api.db._
-import play.api.Play.current
-import anorm._
-import scala.concurrent.Future
+import controllers.Utility._BR_
+import controllers.dht.DHT
+import controllers.localdb.LocalDatabase
+import models.ListOfThreadHeaders
+import models.ThreadHeader
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scalaz._
-import Scalaz._
-import Utility._BR_
+import scala.util.matching.Regex
 
 object Subject {
-
-  def generateSubject(chord2ch: => Chord2ch): String = {
+  def generateSubject: String = {
     // DBからキャッシュを読んでDHTから取り出して文字データを再構成してThread型に変換してsubject形式にする
     import scala.concurrent.ExecutionContext.Implicits.global
-    import play.api.libs.concurrent.Akka
 
     play.Logger.debug("generating subject.txt...")
-
-    val threads = DB.withConnection {
-      implicit c =>
-        SQL("SELECT THREAD FROM THREAD_CACHE")().map {
-          case Row(thread: Array[Byte]) => thread
-        }.toList
+    val threadKeys = LocalDatabase.default.getThreads
+    play.Logger.debug(s"Thread addresses in DB: ${threadKeys.size}")
+    val threadBytes: List[Option[Stream[Byte]]] = {
+      threadKeys map { threadKey ⇒ Await.result(DHT.default.get(threadKey).map(_.toOption), 10 seconds) }
     }
-
-    play.Logger.debug(s"Thread addresses in DB: ${threads.size}")
-
-    val threadvalsF: (List[Array[Byte]]) => Future[List[Option[Stream[Byte]]]] = thr => Akka.future {
-      Await.result(Future.sequence(thr.map {
-        key => chord2ch.get(key.toSeq)
-      }), 50 second)
+    val listOfheaders = threadBytes flatMap {
+      case Some(stream) ⇒ ThreadHeader.fromByteArray(stream.toArray).toList
+      case None ⇒ Nil
     }
+    val headersObject = new ListOfThreadHeaders(listOfheaders)
+    val subjectString = headersObject.generateString
+    play.Logger.debug(s"subject.txt has been generated.(${threadKeys.size})")
 
-    val tokenize: (Stream[Byte]) => Thread = thr => (new String(thr.toArray)).split( """<>""") |> ((s: Array[String]) => Thread(s(0), s(1).toLong, s(2), s(3), s(4)))
+    subjectString
+  }
 
-    val future_list_opt_mapper: (Stream[Byte] => Thread) => Future[List[Option[Stream[Byte]]]] => List[Thread] =
-      f => flo =>
-        Await.result(flo map (lis => lis.map(opt => opt map f).filterNot(_.isEmpty).map(_.get)), 100 seconds)
+  case class Thread(hash: String, title: String, response: String)
 
-    val genBody: (List[Thread]) => String = t => views.html.subject(t).body
+  def generateThreadList: List[Thread] = {
 
-    val body: String = threads |> (threadvalsF >>> (tokenize |> future_list_opt_mapper) >>> genBody)
+    val subject: String = "0.dat<>P2P2chの情報 (1)" + _BR_ + Subject.generateSubject
+    play.Logger.debug(s"subject.txt has been generated like following.(${subject})")
 
-    play.Logger.debug(s"subject.txt has been generated.(${threads.size})")
+    val RegexThread: Regex = """([0-9]*).dat<>(.+)\(([0-9]*)\)""".r
+    var threadList: List[Thread] = List()
 
-    "0.dat<>P2P2chの情報 (1)" + _BR_ + body
+    subject.split("<br>").foreach(
+      e => RegexThread.findAllIn(e).matchData.foreach { m =>
+
+        val hash: String = m.group(1).replaceAll(".dat", "")
+        val title: String = m.group(2)
+        val response: String = m.group(3)
+        threadList = threadList :+ Thread(hash, title, response)
+      }
+    )
+
+    threadList
   }
 }

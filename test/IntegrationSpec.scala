@@ -13,17 +13,12 @@ class IntegrationSpec extends Specification {
 
   "Application" should {
 
-    "work from within a browser" in {
+    "GET / can return threadlist with WEBUI" in {
       running(TestServer(3333), HTMLUNIT) {
-        browser =>
-
+        browser ⇒
           browser.goTo("http://localhost:3333/")
-
-          browser.pageSource must contain("Your new application is ready.")
-
+          browser.pageSource must contain("P2P2ch")
       }
     }
-
   }
-
 }

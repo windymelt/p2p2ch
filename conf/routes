@@ -3,20 +3,24 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET     /                           controllers.Application.showIndex
+GET     /index.html                 controllers.Application.showIndex
 
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
-GET     /bbsmenu.html               controllers.Application.bbsmenu
-GET     /bbstable.html              controllers.Application.bbstable
-GET     /bbs/                       controllers.Application.bbsindex
-GET     /bbs/subject.txt                controllers.Application.subject
-GET     /bbs/dat/0.dat         controllers.Application.information
+# Something like a API
+GET     /bbs/subject.txt            controllers.Application.showSubject
+GET     /bbs/dat/0.dat              controllers.Application.showInformation
 GET     /bbs/dat/:dat               controllers.Application.showThread(dat: String)
 GET     /bbs/SETTING.TXT            controllers.Assets.at(path="/public", file="SETTING.TXT")
 POST    /test/bbs.cgi               controllers.Application.writeThread
-GET     /statusgraph/                    controllers.Application.showStatusImage
-GET     /statusgraph/refr               controllers.Application.showStatusImageWithRefresh(interval: Int = 30)
-GET     /statusgraph/refr               controllers.Application.showStatusImageWithRefresh(interval: Int)
-GET     /statusgraph/realtime       controllers.Application.statusGraphRealtime
-GET     /statusgraph/comet          controllers.Application.statusGraphComet
+GET     /statusgraph/               controllers.Application.showStatusImage
+GET     /statusgraph/refr           controllers.Application.showStatusImageWithRefresh(interval: Int = 30)
+GET     /statusgraph/refr           controllers.Application.showStatusImageWithRefresh(interval: Int)
+GET     /statusgraph/realtime       controllers.Application.showStatusGraphRealtime
+GET     /statusgraph/comet          controllers.Application.showStatusGraphComet
+
+# Map static resources from the /public folder to the /assets URL path
+# Web UI with HTML tags
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /bbsmenu.html               controllers.Application.showBBSMenu
+GET     /bbstable.html              controllers.Application.showBBSTable
+GET     /bbs/                       controllers.Application.showBBSIndex
