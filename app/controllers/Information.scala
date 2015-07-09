@@ -26,7 +26,7 @@ object Information {
     }.mkString(_BR_)
     log match {
       case "" ⇒ str
-      case s  ⇒ str + _BR_ + log
+      case s ⇒ str + _BR_ + log
     }
   }
 
@@ -47,13 +47,13 @@ object Information {
     message.nonEmpty match {
       case true ⇒
         message.split(_BR_).toList match {
-          case Help()            ⇒ Help.work
-          case Reference()       ⇒ Reference.work
-          case Join(reference)   ⇒ Join.work(reference)
-          case Status()          ⇒ Status.work
-          case Upload(path)      ⇒ Upload.work(path)
+          case Help() ⇒ Help.work
+          case Reference() ⇒ Reference.work
+          case Join(reference) ⇒ Join.work(reference)
+          case Status() ⇒ Status.work
+          case Upload(path) ⇒ Upload.work(path)
           case ExternalAddress() ⇒ ExternalAddress.work
-          case _                 ⇒ "そんなコマンド知らん"
+          case _ ⇒ "そんなコマンド知らん"
         }
       case false ⇒ "空白は困ります"
     }
@@ -64,7 +64,7 @@ object Help {
   def unapply(x: Any): Boolean = {
     x.isInstanceOf[List[String]] && (x.asInstanceOf[List[String]] match {
       case "help" :: Nil ⇒ true
-      case _             ⇒ false
+      case _ ⇒ false
     })
   }
 
@@ -89,7 +89,7 @@ object Reference {
   def unapply(x: Any): Boolean = {
     x.isInstanceOf[List[String]] && (x.asInstanceOf[List[String]] match {
       case "reference" :: Nil ⇒ true
-      case _                  ⇒ false
+      case _ ⇒ false
     })
   }
 
@@ -102,7 +102,7 @@ object Join {
   def unapply(x: Any): Option[String] = {
     x match {
       case "join" :: (reference: String) :: Nil ⇒ Some(reference)
-      case _                                    ⇒ None
+      case _ ⇒ None
     }
   }
 
@@ -116,7 +116,7 @@ object Status {
   def unapply(x: Any): Boolean = {
     x.isInstanceOf[List[String]] && (x.asInstanceOf[List[String]] match {
       case "status" :: Nil ⇒ true
-      case _               ⇒ false
+      case _ ⇒ false
     })
   }
 
@@ -129,7 +129,7 @@ object Upload {
   def unapply(x: Any): Option[String] = {
     x match {
       case "upload" :: (path_to_file: String) :: Nil ⇒ Some(path_to_file)
-      case _                                         ⇒ None
+      case _ ⇒ None
     }
   }
 
@@ -142,7 +142,7 @@ object ExternalAddress {
   def unapply(x: Any): Boolean = {
     x.isInstanceOf[List[String]] && (x.asInstanceOf[List[String]] match {
       case "extnaddr" :: Nil ⇒ true
-      case _                 ⇒ false
+      case _ ⇒ false
     })
   }
 

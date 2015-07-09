@@ -12,7 +12,7 @@ object SQLLocalDatabase extends LocalDatabase {
       implicit c ⇒
         SQL("SELECT THREAD FROM THREAD_CACHE WHERE MODIFIED = {modified}").on("modified" → datNumber)().map {
           case Row(thread: Array[Byte]) ⇒ Some(thread)
-          case _                        ⇒ None
+          case _ ⇒ None
         }.filterNot(_.isEmpty).toList
     }
     threadKeyList(0)

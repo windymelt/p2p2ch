@@ -5,11 +5,11 @@ import scala.concurrent.duration.FiniteDuration
 import play.api.Logger
 
 class UPnPPsyonik(
-  override val external_port: Int,
-  override val local_port:    Int,
-  override val protocol:      String,
-  override val description:   String,
-  override val limit:         FiniteDuration
+    override val external_port: Int,
+    override val local_port: Int,
+    override val protocol: String,
+    override val description: String,
+    override val limit: FiniteDuration
 ) extends UPnP(external_port, local_port, protocol, description, limit) {
   def open(): Boolean = GatewayDiscover().getValidGateway() exists { gw: GatewayDevice ⇒
     Logger.debug("UPnP: found Gateway")
@@ -27,7 +27,7 @@ class UPnPPsyonik(
   def close(): Boolean = GatewayDiscover().getValidGateway() exists { gw: GatewayDevice ⇒
     gw.getSpecificPortMappingEntry(external_port, protocol) match {
       case Some(_) ⇒ gw.deletePortMapping(external_port, protocol)
-      case None    ⇒ false
+      case None ⇒ false
     }
   }
 }

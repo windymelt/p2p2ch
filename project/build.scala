@@ -72,6 +72,7 @@ object P2P2ch extends Build {
     resolvers += "Scalaz-bintray" at "http://dl.bintray.com/scalaz/releases",
     libraryDependencies ++= LibraryDependencies
   )
+
   lazy val project = Project(
     "P2P2ch",
     file("."),
@@ -82,5 +83,5 @@ object P2P2ch extends Build {
         projectSettings
   ) dependsOn (
     P2PScalaProto
-    )
+  )
 }

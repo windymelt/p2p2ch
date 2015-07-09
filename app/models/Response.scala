@@ -48,7 +48,7 @@ object Response {
                       """ORDER BY MODIFIED ASC LIMIT 1 OFFSET {no}"""
                   ).on('thread → res.thread, 'no → decrN)().map {
                       case Row(response: Array[Byte]) ⇒ ">>" + new String(Base64.encodeBase64(response)) + "@"
-                      case _                          ⇒ ">>" + m.toString
+                      case _ ⇒ ">>" + m.toString
                     }.toList.headOption.getOrElse(">>" + m.toString)
               }
           }

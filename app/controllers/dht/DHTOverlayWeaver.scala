@@ -42,7 +42,7 @@ object DHTOverlayWeaver extends controllers.dht.DHT {
     case Some(d) ⇒
       val v = d.get(ID.getID(key.toArray, ID_SIZE))
       v.iterator().hasNext match {
-        case true  ⇒ Future(v.iterator().next().getValue.toStream.right)
+        case true ⇒ Future(v.iterator().next().getValue.toStream.right)
         case false ⇒ Future(DHTNotFound.left)
       }
     case None ⇒ Future(DHTGetNotInitialized.left)
@@ -68,9 +68,9 @@ object DHTOverlayWeaver extends controllers.dht.DHT {
   def identifier: Option[Identifier] = dht() flatMap { _.getSelfIDAddressPair.toString.some }
   def info: Option[Information] = dht() flatMap { _.getConfiguration.toString.some }
   private def initializeDHT(applicationID: Short, applicationVersion: Short, config: DHTConfiguration,
-                            workingDir: Option[String], transport: Option[String], algorithm: Option[String],
-                            routingStyle: Option[String], selfID: Option[ID], statCollectorAddressAndPort: Option[String],
-                            selfAddressAndPort: Option[String], noUPnP: Boolean = false, contactHostAndPort: Option[String]): OWDHT[V] = {
+    workingDir: Option[String], transport: Option[String], algorithm: Option[String],
+    routingStyle: Option[String], selfID: Option[ID], statCollectorAddressAndPort: Option[String],
+    selfAddressAndPort: Option[String], noUPnP: Boolean = false, contactHostAndPort: Option[String]): OWDHT[V] = {
     var join = false
 
     contactHostAndPort foreach { _ ⇒ join = true }
