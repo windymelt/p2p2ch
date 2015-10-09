@@ -11,7 +11,10 @@ import scalariform.formatter.preferences._
 object P2P2ch extends Build {
 
   lazy val P2PScalaProto =
-    ProjectRef(new URI("https://github.com/windymelt/p2pScalaProto.git"), "P2PScalaProto")
+    ProjectRef(new URI("https://github.com/Hiroyuki-Nagata/p2pScalaProto.git"), "P2PScalaProto")
+
+  // ローカルテスト用
+  // ProjectRef(base = file("../p2pScalaProto"), "P2PScalaProto")
 
   ScalariformKeys.preferences := ScalariformKeys.preferences.value
     .setPreference(RewriteArrowSymbols, true)
