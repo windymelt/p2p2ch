@@ -14,7 +14,7 @@ object Utility {
 
   def nanasify(name: String): String = name match {
     case "" ⇒ "P2Pの名無しさん"
-    case s  ⇒ s
+    case s ⇒ s
   }
 
   val Otimestamp2str: Option[Long] ⇒ String =
@@ -38,7 +38,7 @@ object Utility {
     Some(s.toLong)
   } catch {
     case e: NumberFormatException ⇒ None
-    case _: Throwable             ⇒ None
+    case _: Throwable ⇒ None
   }
 
 }

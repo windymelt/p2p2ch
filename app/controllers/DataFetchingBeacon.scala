@@ -11,8 +11,8 @@ class DataFetchingBeacon extends akka.actor.Actor {
 
   def receive = {
     case ('start, a: ActorRef) ⇒ startTimer(a)
-    case 'stop                 ⇒ stopTimer
-    case unknown               ⇒
+    case 'stop ⇒ stopTimer
+    case unknown ⇒
   }
 
   def startTimer(a: ActorRef) = {
@@ -22,7 +22,7 @@ class DataFetchingBeacon extends akka.actor.Actor {
 
   def stopTimer = {
     cancellable >>= (c ⇒ c.isCancelled match {
-      case false     ⇒ c.cancel().some
+      case false ⇒ c.cancel().some
       case otherwise ⇒ None // do nothing
     })
     cancellable = None
